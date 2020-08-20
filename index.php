@@ -1,90 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
 
-<?php 
-  $errors = [];
-?>
-<?php require_once('common/htmlHeader.php'); // html head部分 ?>
-<script src="js/login.js"></script>
-  <title>團購網</title>
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>團購網 - 登入</title>
+
+  <!-- Custom fonts for this template-->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
 </head>
-<body>
-<div class="container">
-      <div class="row mt-4">
-        <div class="col-md-7">
-          <h4>管理員、客戶及專案人員登入後提供以下服務</h4>
-          
-          <ul>
-            <li>管理員可瀏覽及執行所有功能</li>
-            <li>客戶可瀏覽IG文章及專案</li>
-            <li>專案人員可瀏覽IG文章及所獲得的酬金之管理</li>
-            <li>專案人員註冊及修改基本資料請由登入下方之超連結進入</li>
-            <li>客戶、管理員之註冊請洽本公司人員</li>
-          </ul>
-        </div>
-        <div class="col-md-5">
-          <div class="card ">
-              <div class="card-header">
-                <h5>登入IG管理系統</h5>
+
+<body class="bg-gradient-primary">
+
+  <div class="container">
+
+    <!-- Outer Row -->
+    <div class="row justify-content-center">
+
+      <div class="col-xl-10 col-lg-12 col-md-9">
+
+        <div class="card o-hidden border-0 shadow-lg my-5">
+          <div class="card-body p-0">
+            <!-- Nested Row within Card Body -->
+            <div class="row">
+              <div class="col-lg-6 d-none d-lg-block bg-login-image">
+                <img src="https://picsum.photos/450" />
               </div>
-              <div class="card-body">
-
-                <form action="{{ route('verify.login.check') }}" method="post">
-                  <div class="form-group">
-                    <div class="container-err-msg">
-<?php require_once ('common/validationErrorMessage.php') ?>
-                    </div>
+              <div class="col-lg-6">
+                <div class="p-5">
+                  <div class="text-center">
+                    <h1 class="h4 text-gray-900 mb-4">使用群組帳號或個人帳號登入</h1>
                   </div>
-                  <div class="form-group row">
-                    <label for="username" class="col-lg-3">帳號</label>
-                    <div class="col-lg-8">
-                      <input type="text" class="form-control" id="username" name="username" maxlength="40" 
-                      placeholder="訪客請輸入guest" value="" required />
+                  <form class="user">
+                    <div class="form-group">
+                      <input type="email" class="form-control form-control-user" id="InputEmail" aria-describedby="emailHelp" placeholder="帳號:3~20個英文或數字">
                     </div>
-                  </div>
-                  <div class="form-group row">
-                    <label for="pwd" class="col-lg-3">密碼</label>
-                    <div class="col-lg-8">
-                      <input type="password" class="form-control" id="pwd" name="pwd" maxlength="40" 
-                      placeholder="訪客請輸入guest" value="" required />
+                    <div class="form-group">
+                      <input type="password" class="form-control form-control-user" id="InputPassword" placeholder="密碼:6~12個字"">
                     </div>
-                  </div>
-
-                  <div class="form-group row">
-                    <label for="I_validation_code" class="col-lg-3">驗證碼</label>
-                    <div class="col-lg-9 form-inline">
-                      <input type="text" class="form-control w-50 mr-2" id="I_validation_code" name="I_validation_code" type="text" required />
-                      <img id="I_verify_image" class="mr-2" name="I_verify_image" src="{{route('verify.image.crate') }}" 
-                      data-image-check="{{ route('ajax.image.check') }}" />
-                      <a id="I_change_validation_code" name="I_change_validation_code" href="javascript: void(0)">
-                        <img src="" alt="refresh validation" />
+                    <div class="form-group">
+                      <div class="custom-control custom-checkbox small">
+                        <input type="checkbox" class="custom-control-input" id="customCheck">
+                        <label class="custom-control-label" for="customCheck">記住我</label>
+                      </div>
+                    </div>
+                    <div class="form-group form-inline">
+                      <input type="text" class="form-control form-control-user w-50" id="I_validation_code" placeholder="請填驗證碼">
+                      <a href="javascript:void(0)" onclick="$(function(){ $('#I_verify_image').attr('src', 'verify_image.php')});">
+                        <img id="I_verify_image" class="ml-3 rounded-lg" name="I_verify_image" src="verify_image.php" />
                       </a>
                     </div>
+                    <a href="index.html" class="btn btn-primary btn-user btn-block">
+                      登入
+                    </a>
+<!--                     <hr>
+                    <a href="index.html" class="btn btn-google btn-user btn-block">
+                      <i class="fab fa-google fa-fw"></i> Login with Google
+                    </a>
+                    <a href="index.html" class="btn btn-facebook btn-user btn-block">
+                      <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
+                    </a> -->
+                  </form>
+                  <hr>
+                  <div class="text-center">
+                    <a class="small" href="forgot-password.html">忘記個人帳號密碼?</a>
                   </div>
-
-                  <div class="form-group row">
-                    <div class="col-lg-3"></div>
-                    <div class="col-lg-9 form-inline">
-                      <input type="submit" class="btn btn-primary mr-4" value="登入" data-username-psw-chk="{{ route('ajax.username_psw.check') }}" 
-                      data-success-login=""/>
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="remember" name="remember" >
-                        <label class="custom-control-label" for="remember">保持登入</label>
-                      </div>
-  
-                    </div>
+                  <div class="text-center">
+                    <a class="small" href="register.html">申請新的群組帳號!</a>
                   </div>
-                </form>
+                </div>
               </div>
-              <div class="card-footer">
-                <h6>專案人員</h6>
-                <ul>
-                  <li><button type="button" class="btn btn-link" onclick="javascript:location.href='{{ route("account.ig-users.formCreate") }}'">註冊申請加入</button></li>
-                  <li>修改基本資料</li>
-                </ul>
-              </div>
+            </div>
           </div>
         </div>
+
       </div>
 
     </div>
+
+  </div>
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for all pages-->
+  <script src="js/sb-admin-2.min.js"></script>
+
 </body>
+
 </html>
