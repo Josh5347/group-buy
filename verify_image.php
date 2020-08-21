@@ -37,7 +37,7 @@ imageline($im,0,mt_rand(0,25),$imageSize['x'],mt_rand(0,$imageSize['y']),$lineco
 imageline($im,0,mt_rand(0,25),$imageSize['x'],mt_rand(0,$imageSize['y']),$linecolor3);
 
 //$_SESSION['validation_image_number'] = substr(str_shuffle('ABCDEFGHIJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'),0,4); 刪除小寫
-$_SESSION['validation_image_number'] = substr(str_shuffle('abcdefghijkmnpqrstuvwxyz23456789'),0,4);
+$_SESSION['validation_image_number'] = substr(str_shuffle('ABCDEFGHIJKMNPQRSTUVWXYZ23456789'),0,4);
 
 //$validation_image_number = substr(str_shuffle('abcdefghijklmnopqrstuvwxyz23456789'),0,4);
 
