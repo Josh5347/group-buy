@@ -5,27 +5,88 @@
   
   //錯誤訊息
   $errors = [];
+  $todayDateTime = date("Y-m-d H:i:s");
+  
+  $StringExplo=explode("/",$_SERVER['REQUEST_URI']);
+  $HeadTo=$StringExplo[0]."/index.php";
+
+  //有按建立群組按鈕
+  if( isset($_REQUEST['insert']) &&
+      $_REQUEST['insert'] == 'submit'){
+
+    //驗證通過
+    if(validation()){
+	
+  	
+      $query = sprintf("INSERT INTO account (username, login_password, register_date) 
+        VALUES (%s, %s, %s)", 
+		    GetSQLValue($_REQUEST['account'], "text"), 
+		    GetSQLValue($_REQUEST['pwd'], "text"), 
+		    GetSQLValue($todayDateTime, "text")); 
+      
+      // 傳回結果集
+      $result = mysqli_query($connection, $query);	
+    
+      if ($result){
+
+        Header("Location: ".$HeadTo);
+      }else{
+        echo "<script>alert('帳號建立失敗');</script>";
+      }
+      
+    }
+  }
 
   //驗證
   function validation(){
     global $errors;
 
+    //圖片驗證碼
+    if( isset($_REQUEST['verify_image']) &&
+        $_SESSION['validation_image_number'] != $_REQUEST['verify_image']){
+      array_push($errors, '驗證碼有誤');
+    }
+
     if( !isset($_REQUEST['account']) ||
-        $_REQUEST['account'] = '' ){
-      $errors += ['帳號欄為必輸'];
-      return false;
+        $_REQUEST['account'] == '' ){
+      array_push($errors, '帳號欄為必輸');
+      
     }
 
-    if( !preg_match("/^\w{3,20}$/",$_REQUEST['account'])){
-      $errors += ['帳號格式有誤'];
+    if(isset($_REQUEST['account'] )&&
+       !preg_match("/^\w{3,20}$/",$_REQUEST['account'])){
+        array_push($errors, '帳號格式有誤');
+    }
+
+    if( !isset($_REQUEST['pwd']) ||
+        $_REQUEST['pwd'] == '' ){
+      array_push($errors, '密碼欄為必輸');
+    }
+
+    if( !isset($_REQUEST['confirm_pwd']) ||
+        $_REQUEST['confirm_pwd'] == '' ){
+      array_push($errors, '確認密碼欄為必輸');
+    }
+
+    if(isset($_REQUEST['pwd']) &&
+      !preg_match("/^[\s\S]{6,12}$/",$_REQUEST['pwd'])){
+      array_push($errors, '密碼需為6~12個字');
+    }
+
+    if( isset($_REQUEST['pwd']) &&
+        isset($_REQUEST['confirm_pwd']) &&
+        $_REQUEST['pwd'] != $_REQUEST['confirm_pwd']){
+      array_push($errors, '密碼與確認密碼不符');
+    }
+    
+    //錯誤訊息超過1個
+    if(count($errors) > 0){
       return false;
+    }else{
+      return true;
     }
 
   }
-  if(validation()){
-
-  }
-
 
 ?>
 
@@ -95,11 +156,11 @@
                       placeholder="確認密碼">
                   </div>
                   <div class="form-group form-inline">
-                    <input type="text" class="form-control form-control-user w-50" id="I_validation_code"
+                    <input type="text" name="verify_image" class="form-control form-control-user w-50" id="I_validation_code"
                       placeholder="請填驗證碼">
                     <a href="javascript:void(0)"
                       onclick="$(function(){ $('#I_verify_image').attr('src', 'verify_image.php')});">
-                      <img id="I_verify_image" class="ml-2 rounded-lg" name="I_verify_image" src="verify_image.php" />
+                      <img id="I_verify_image" class="ml-2 rounded-lg" src="verify_image.php" />
                     </a>
                   </div>
                   <div class="form-group">
