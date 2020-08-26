@@ -2,42 +2,7 @@
 <?php require_once 'Connections/connection.php'; ?>
 <?php require_once 'Connections/function.php'; ?>
 <?php 
-  
-  //錯誤訊息
-  $errors = [];
-  $todayDateTime = date("Y-m-d H:i:s");
-  
-  $StringExplo=explode("/",$_SERVER['REQUEST_URI']);
-  $HeadTo=$StringExplo[0]."/index.php";
-
-  //有按建立群組按鈕
-  if( isset($_REQUEST['insert']) &&
-      $_REQUEST['insert'] == 'submit'){
-
-    //驗證通過
-    if(validation()){
-	
-  	
-      $query = sprintf("INSERT INTO account (username, login_password, register_date) 
-        VALUES (%s, %s, %s)", 
-		    GetSQLValue($_REQUEST['account'], "text"), 
-		    GetSQLValue($_REQUEST['pwd'], "text"), 
-		    GetSQLValue($todayDateTime, "text")); 
-      
-      // 傳回結果集
-      $result = mysqli_query($connection, $query);	
-    
-      if ($result){
-
-        Header("Location: ".$HeadTo);
-      }else{
-        echo "<script>alert('帳號建立失敗');</script>";
-      }
-      
-    }
-  }
-
-  //驗證
+   //驗證
   function validation(){
     global $errors;
 
@@ -88,10 +53,56 @@
 
   }
 
+
+/****************************************************/
+/*                    main                          */
+/****************************************************/
+  
+
+
+  //錯誤訊息
+  $errors = [];
+  $todayDateTime = date("Y-m-d H:i:s");
+  $result = false;
+  
+  $StringExplo=explode("/",$_SERVER['REQUEST_URI']);
+  $HeadTo=$StringExplo[0]."/index.php";
+
+  //有按建立群組按鈕
+  if( isset($_REQUEST['insert']) &&
+      $_REQUEST['insert'] == 'submit'){
+
+    //驗證通過
+    if(validation()){
+	
+      $passwordEncrypt = password_hash( $_REQUEST['pwd'], PASSWORD_BCRYPT);
+      
+      $query = sprintf("INSERT INTO account (username, login_password, register_date) 
+        VALUES (%s, %s, %s)", 
+		    GetSQLValue($_REQUEST['account'], "text"), 
+		    GetSQLValue($passwordEncrypt, "text"), 
+		    GetSQLValue($todayDateTime, "text")); 
+      
+      // 傳回結果集
+      $result = mysqli_query($conn, $query);	
+    
+      if ($result){
+        //echo "<script>alert('建立成功，請登入');</script>";
+        $_SESSION['create_account'] = 'success';
+        Header("Location: ".$HeadTo);
+      }else{
+        trigger_error(mysqli_error($conn), E_USER_ERROR);
+      }
+      
+    }
+  }
+
+
 ?>
 
 <?php require_once 'common/htmlHeader.php'; ?>
 <script src="js/register.js" defer></script>
+
   <title>團購網 - 建立群組</title>
 </head>
 
@@ -209,5 +220,6 @@
   <script src="js/sb-admin-2.min.js"></script>
 
 </body>
+
 
 </html>
