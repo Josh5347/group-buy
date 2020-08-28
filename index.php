@@ -1,7 +1,9 @@
 <?php require_once 'common/phpHeader.php'; ?>
 <?php require_once 'Connections/connectionOO.php'; ?>
 <?php require_once 'Connections/function.php'; ?>
-<?php 
+<?php require_once 'Classes/AccountPassword.php';?>
+<?php
+
   use Classes\AccountPassword;
 
   function createAccountSuccessMsg(){
@@ -12,8 +14,20 @@
     }
   }
 
+  function setLoginCookies(){
+    global $cookieUsername, $cookiePassword;
+
+    if(isset($_COOKIE['username'])){
+      $cookieUsername = $_COOKIE['username'];
+    }
+    if(isset($_COOKIE['password'])){
+      $cookiePassword = $_COOKIE['password'];
+    }
+  }
+
+
   function validation(){
-    global $errors;
+    global $errors, $connOO;
 
     //圖片驗證碼
     if( !isset($_REQUEST['verify_image'])){
@@ -35,7 +49,24 @@
       array_push($errors, '密碼欄為必輸');
     }
 
-    //AccountPassword::check()
+    //檢查帳密
+    $returnCheck = AccountPassword::check($connOO);
+    
+
+    if($returnCheck === true){
+      //密碼檢核通過，存入登入變數
+      $_SESSION['username'] = $_REQUEST['account'];
+
+      //若有勾選記住我，儲存帳密於cookie
+      if(isset($_REQUEST['rememberMeCheck'])){
+        setcookie("username",$_REQUEST['account'],time()+ 3600*24*365, "/");
+        setcookie("password",$_REQUEST['pwd'],time()+ 3600*24*365, "/");
+      }
+      
+    }else{
+      //帳密檢核不通過的錯誤訊息
+      array_push($errors, $returnCheck);
+    }
 
     //錯誤訊息超過1個
     if(count($errors) > 0){
@@ -51,12 +82,20 @@
   /****************************************************/
   /*                    main                          */
   /****************************************************/
-  
-  //當建立群組帳號成功時，轉跳至登入頁面，顯示訊息
-  createAccountSuccessMsg();
 
   //錯誤訊息
   $errors = [];
+  $cookieUsername = '';
+  $cookiePassword ='';
+
+  $StringExplo=explode("/",$_SERVER['REQUEST_URI']);
+  $HeadTo=$StringExplo[0]."/home.php";
+
+  //當建立群組帳號成功時，轉跳至登入頁面，顯示訊息
+  createAccountSuccessMsg();
+
+  setLoginCookies();
+
 
   //有按登入按鈕
   if( isset($_REQUEST['login']) &&
@@ -64,7 +103,7 @@
 
     //驗證通過
     if(validation()){
-
+      Header("Location: ".$HeadTo);
     }
   }
 ?>
@@ -78,7 +117,8 @@
 
 </head>
 
-<body class="bg-gradient-primary">
+<!-- <body class="bg-gradient-primary"> -->
+<body class="">
 
   <div class="container">
 
@@ -106,24 +146,24 @@
 
                   <form method="post" action="<?=$_SERVER['PHP_SELF']?>" class="user">
                     <div class="form-group">
-                      <input type="text" class="form-control form-control-user" id="InputUsername" placeholder="帳號">
+                      <input type="text" name="account" class="form-control form-control-user" value="<?= $cookieUsername;?>" placeholder="帳號">
                     </div>
                     <div class="form-group">
-                      <input type="password" class="form-control form-control-user" id="InputPassword" placeholder="密碼">
+                      <input type="password" name="pwd" class="form-control form-control-user" value="<?= $cookiePassword;?>" placeholder="密碼">
                     </div>
                     <div class="form-group">
                       <div class="custom-control custom-checkbox small">
-                        <input type="checkbox" class="custom-control-input" id="customCheck">
-                        <label class="custom-control-label" for="customCheck">記住我</label>
+                        <input type="checkbox" name="rememberMeCheck" class="custom-control-input" id="rememberMeCheck" checked>
+                        <label class="custom-control-label" for="rememberMeCheck">記住我</label>
                       </div>
                     </div>
                     <div class="form-group form-inline">
-                      <input type="text" class="form-control form-control-user w-50" id="I_validation_code" placeholder="請填驗證碼">
+                      <input type="text" name="verify_image" class="form-control form-control-user w-50" id="I_validation_code" placeholder="請填驗證碼" />
                       <a href="javascript:void(0)" onclick="$(function(){ $('#I_verify_image').attr('src', 'verify_image.php')});">
                         <img id="I_verify_image" class="ml-3 rounded-lg" name="I_verify_image" src="verify_image.php" />
                       </a>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-user btn-block">
+                    <button type="submit" class="btn btn-danger btn-user btn-block">
                       登入
                     </button>
                     <input type="hidden" name="login" value="submit" />

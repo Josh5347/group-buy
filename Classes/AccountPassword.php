@@ -1,21 +1,31 @@
 <?php
+  namespace Classes; ?>
 
-
-  namespace Classes;
+<?php require_once 'Connections/connectionOO.php'; ?>
+<?php require_once 'Connections/function.php'; ?>
+<?php
 
 
   class AccountPassword{
 
     //檢查帳密
-    public static function check(){
+    public static function check($connOO){
 
-      $query = sprintf("SELECT * form account WHERE username = %s",
+      $sql = sprintf("SELECT * from account WHERE username = %s",
         GetSQLValue($_REQUEST['account'], "text"));
       
-      $result = mysqli_query($conn, $query);	
+      $result = $connOO->query($sql);	
 
       if($result){
-        mysqli_fetch
+        $row = $result->fetch_assoc();
+        if( password_verify( $_REQUEST['pwd'], $row['login_password'])){
+          
+          return true;
+        }else{
+          return "密碼不符";
+        }
+      }else{
+        return "無此帳號";
       }
 
     }

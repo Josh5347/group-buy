@@ -89,7 +89,7 @@
       if ($result){
         //echo "<script>alert('建立成功，請登入');</script>";
         $_SESSION['create_account'] = 'success';
-        Header("Location: ".$HeadTo);
+        header("Location: ".$HeadTo);
       }else{
         trigger_error(mysqli_error($conn), E_USER_ERROR);
       }
@@ -106,7 +106,8 @@
   <title>團購網 - 建立群組</title>
 </head>
 
-<body class="bg-gradient-primary">
+<!-- <body class="bg-gradient-primary"> -->
+<body class="">
 
   <div class="container">
 
@@ -175,7 +176,7 @@
                     </a>
                   </div>
                   <div class="form-group">
-                    <button id="btn-register-submit" type="submit" class="btn btn-primary btn-user btn-block">
+                    <button id="btn-register-submit" type="submit" class="btn btn-danger btn-user btn-block">
                       建立群組
                     </button>
                   </div>
