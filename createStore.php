@@ -24,14 +24,14 @@
 
           <!-- Page Heading -->
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">新增店家</h1>
+            <h1 class="h3 mb-0 text-gray-800">新增商店</h1>
           </div>
           <form method="post" action="<?=$_SERVER['PHP_SELF']?>" class="user">
             <!-- Content Row -->
             <div class="row">
 
               <!-- Content Column -->
-              <div class="col-lg-6 mb-4">
+              <div class="col-lg-6">
 
                 <!-- Project Card Example -->
                 <div class="card shadow mb-4">
@@ -40,16 +40,16 @@
                   </div>
                   <div class="card-body">
                     <div class="form-group">
-                      <input type="text" name="account" class="form-control form-control-user" placeholder="名稱:必填">
+                      <input type="text" name="store_name" class="form-control form-control-user" placeholder="名稱:必填">
                     </div>
                     <div class="form-group">
-                      <input type="text" name="account" class="form-control form-control-user" placeholder="名稱:必填">
+                      <input type="text" name="introduction" class="form-control form-control-user" placeholder="簡介">
                     </div>
                     <div class="form-group">
-                      <input type="text" name="account" class="form-control form-control-user" placeholder="名稱:必填">
+                      <input type="text" name="store_tel" class="form-control form-control-user" placeholder="電話">
                     </div>
                     <div class="form-group">
-                      <input type="text" name="account" class="form-control form-control-user" placeholder="名稱:必填">
+                      <input type="text" name="store_address" class="form-control form-control-user" placeholder="地址">
                     </div>
                   </div>
                 </div>
@@ -58,6 +58,57 @@
               </div>
 
             </div>
+
+            <!-- Content Row -->
+            <div class="row">
+
+              <!-- Content Column -->
+              <div class="col-lg-6 mb-4">
+
+                <!-- Project Card Example -->
+                <div class="card shadow">
+                  <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">商品清單</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-group">
+                      <textarea name="store_name" rows="10" cols="50" class="form-control" placeholder="商品:必填"></textarea>   
+                    </div>
+                  </div>
+                </div>
+
+                
+              </div>
+
+            </div>
+            <!-- Content Row End-->
+
+            <!-- Content Row -->
+            <div class="row">
+
+              <!-- Content Column -->
+              <div class="col-lg-6 mb-4">
+
+                <!-- Project Card Example -->
+                <div class="card shadow">
+                  <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">商品圖片上傳與設定</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-group">
+                      <button type="button" class="btn btn-danger btn-user">
+                        上傳圖片
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                
+              </div>
+
+            </div>
+            <!-- Content Row End-->
+
           </form>
         </div>
         <!-- /.container-fluid -->
