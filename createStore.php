@@ -96,10 +96,18 @@
                   </div>
                   <div class="card-body">
                     <div class="form-group">
-                      <button type="button" class="btn btn-danger btn-user">
+                      <button type="button" class="btn btn-danger btn-user" 
+                        data-toggle="modal" data-target="#uploadSelectFilesModal">
                         上傳圖片
                       </button>
                     </div>
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    
                   </div>
                 </div>
 
@@ -109,6 +117,71 @@
             </div>
             <!-- Content Row End-->
 
+            <!-- Content Row -->
+            <div class="row">
+
+              <!-- Content Column -->
+              <div class="col-lg-6 mb-4">
+
+                <!-- Project Card Example -->
+                <div class="card shadow">
+                  <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">其他資訊</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-group">
+                      <textarea name="store_name" rows="5" cols="50" class="form-control" placeholder="訂購說明"></textarea>   
+                    </div>
+                    <div class="form-group">
+                      <label>(這裡可以寫一些你希望在訂購時，讓訂購人看的說明，例如提醒註記加糖、加辣、不加冰等等細節。此欄位可以用&nbsphtml&nbsptag)</label>
+                    </div>
+                    <div class="form-group">
+                      <input type="text" name="" class="form-control form-control-user" placeholder="傳真">
+                    </div>
+                    <div class="form-group">
+                      <input type="text" name="" class="form-control form-control-user" placeholder="店家網址">
+                    </div>
+                    <div class="form-group">
+                    </div>
+
+                  </div>
+                </div>
+
+                
+              </div>
+
+            </div>
+            <!-- Content Row End-->
+
+            
+          </form>
+          <form class="user">
+            <!-- The Modal -->
+            <div class="modal" id="uploadSelectFilesModal">
+              <div class="modal-dialog">
+                <div class="modal-content">
+
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <div class="modal-title"><h4>上傳圖片</h4></div>
+                  </div>
+
+                  <!-- Modal body -->
+                  <div class="modal-body">
+                    <h6>支援&nbsp.jpg,&nbsp.png,&nbsp.gif,&nbsp.bmp&nbsp等四種圖片格式</h6>
+
+                  </div>
+
+                  <!-- Modal footer -->
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-danger btn-user" data-dismiss="modal">確定上傳</button>
+                    <button type="button" class="btn btn-outline-danger btn-user" data-dismiss="modal">取消上傳</button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+            <!-- Model end -->
           </form>
         </div>
         <!-- /.container-fluid -->

@@ -24,7 +24,7 @@
 
       <!-- Heading -->
       <div class="sidebar-heading">
-        快速訂單管理
+        <h6><b>快速訂單管理</b></h6>
       </div>
 
       <!-- Nav Item - Pages Collapse Menu -->
