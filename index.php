@@ -5,6 +5,7 @@
 <?php
 
   use Classes\AccountPassword;
+  
 
   function createAccountSuccessMsg(){
     if( isset($_SESSION['create_account']) &&

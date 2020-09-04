@@ -1,6 +1,17 @@
+<?php
+  /****************************************************/
+  /*                    main                          */
+  /****************************************************/
+
+  //錯誤訊息
+  $errors = [];
+
+
+?>
+
 <?php require_once 'common/htmlHeader.php'; ?>
 
-  <title>團購網 - 開始團購</title>
+  <title>團購網 - 新增商店</title>
   <link href="css/style.css" rel="stylesheet">
 </head>
 
@@ -26,12 +37,16 @@
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">新增商店</h1>
           </div>
+
+          <!-- 錯誤訊息 -->
+          <?php require_once 'common/validationErrorMessage.php'?>
+
           <form method="post" action="<?=$_SERVER['PHP_SELF']?>" class="user">
             <!-- Content Row -->
             <div class="row">
 
               <!-- Content Column -->
-              <div class="col-lg-6">
+              <div class="col-lg-4">
 
                 <!-- Project Card Example -->
                 <div class="card shadow mb-4">
@@ -57,13 +72,9 @@
                 
               </div>
 
-            </div>
-
-            <!-- Content Row -->
-            <div class="row">
 
               <!-- Content Column -->
-              <div class="col-lg-6 mb-4">
+              <div class="col-lg-8 mb-4">
 
                 <!-- Project Card Example -->
                 <div class="card shadow">
@@ -71,9 +82,22 @@
                     <h6 class="m-0 font-weight-bold text-primary">商品清單</h6>
                   </div>
                   <div class="card-body">
-                    <div class="form-group">
-                      <textarea name="store_name" rows="10" cols="50" class="form-control" placeholder="商品:必填"></textarea>   
+                    <div class="form-group float-left mr-1">
+                      <textarea name="store_name" rows="10" cols="35" class="form-control" placeholder="商品:必填"></textarea>   
                     </div>
+                    <div class="form-group float-left">
+                      <textarea rows="10" cols="35" class="form-control" placeholder="範例" readonly>魯肉飯, 40
+叉燒飯, 60
+{麵食}
+牛肉麵, 意麵 80, 手工麵 90
+陽春麵, 普通 40, 加蛋 50
+{飲料冰品}
+奶茶, S 20, M 30, L 40
+冰咖啡, 中杯 40, 大杯 50
+{下午茶系列}
+甜甜圈, 大 40, 小 30, img:13</textarea>   
+                    </div>
+
                   </div>
                 </div>
 
@@ -86,39 +110,6 @@
             <!-- Content Row -->
             <div class="row">
 
-              <!-- Content Column -->
-              <div class="col-lg-6 mb-4">
-
-                <!-- Project Card Example -->
-                <div class="card shadow">
-                  <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">商品圖片上傳與設定</h6>
-                  </div>
-                  <div class="card-body">
-                    <div class="form-group">
-                      <button type="button" class="btn btn-danger btn-user" 
-                        data-toggle="modal" data-target="#uploadSelectFilesModal">
-                        上傳圖片
-                      </button>
-                    </div>
-                    <br />
-                    <br />
-                    <br />
-                    <br />
-                    <br />
-                    <br />
-                    
-                  </div>
-                </div>
-
-                
-              </div>
-
-            </div>
-            <!-- Content Row End-->
-
-            <!-- Content Row -->
-            <div class="row">
 
               <!-- Content Column -->
               <div class="col-lg-6 mb-4">
@@ -150,10 +141,84 @@
                 
               </div>
 
+              <!-- Content Column -->
+              <div class="col-lg-6 mb-4">
+
+                <!-- Content Row -->
+                <div class="row">
+                  <!-- Content Column -->
+                  <div class="col-lg-12 mb-4">
+                    <!-- Project Card Example -->
+                    <div class="card shadow">
+                      <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">商品圖片上傳與設定</h6>
+                      </div>
+                      <div class="card-body">
+                        <div class="form-group">
+                          <button type="button" class="btn btn-secondary btn-user" 
+                            data-toggle="modal" data-target="#uploadSelectFilesModal">
+                            上傳圖片
+                          </button>
+                        </div>
+                        <br />
+                        <br />
+                        <br />
+                        <br />
+                        上傳的圖片如果是從別的網站引用來的， 請記得在 "訂購說明" 或是 "店家詳細說明" 裡註明出處 (例如寫來源的網址)，謝謝。
+                      </div>
+                    </div>
+                  </div>
+                  <!-- End of Column -->
+
+                  <!-- Content Column -->
+                  <div class="col-lg-12 mb-4">
+
+                    <!-- Project Card Example -->
+                    <div class="card shadow">
+                      <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">儲存</h6>
+                      </div>
+                      <div class="card-body">
+                        <div class="form-inline">
+                          <div class="form-group mx-2">
+                            <input type="submit" class="btn btn-danger btn-user" name="create_group_store"
+                              value="儲存為群組專用店家" />
+                            
+                          </div>
+
+                          
+                          <div class="form-group mx-2">
+                          <input type="submit" class="btn btn-danger btn-user" name="create_public_store"
+                              value="儲存為公用店家" />
+                              儲存為公用店家
+                            </button>
+                          </div>
+                          <div class="form-group mx-2">
+                            <input type="submit" class="btn btn-outline-danger btn-user" name="cancel"
+                              value="取消返回" />
+                            <button type="button" class="btn btn-outline-danger btn-user">
+                              取消返回 
+                            </button>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+
+
+
+                    
+                  </div>
+                  <!-- End of Column -->
+
+                </div>
+                <!-- Content Row End-->
+              </div>
+
+
             </div>
             <!-- Content Row End-->
 
-            
           </form>
           <form class="user">
             <!-- The Modal -->
