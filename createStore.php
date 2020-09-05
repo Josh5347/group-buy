@@ -1,10 +1,106 @@
+<?php require_once 'common/phpHeader.php'; ?>
+<?php require_once 'Connections/connectionOO.php'; ?>
+<?php require_once 'Connections/function.php'; ?>
+<?php require_once 'Classes/Functions.php';?>
+<?php use Classes\Functions; ?>
 <?php
+
+  function createGroupStore(){
+
+    global $connOO;
+
+    //驗證通過
+    if(validation()){
+
+
+    
+      if ( $result = insert_store()){
+
+        $row = $result->fetch_assoc();
+
+        if(insert_store_product($row['store_no'])){
+          Header("Location: ". Functions::redirect('/home.php') );
+        }else{
+          trigger_error(mysqli_error($connOO), E_USER_ERROR);
+        }
+        
+      }else{
+        trigger_error(mysqli_error($connOO), E_USER_ERROR);
+      }
+
+
+
+    }
+  }
+
+  function validation(){
+    global $errors;
+
+    return true;
+
+  }
+
+  function insert_store(){
+
+    global $connOO;
+
+    $query = sprintf("INSERT INTO store 
+    (username, store_public, store_name, Introduction, store_tel, store_addr, detail, 
+    store_fax, store_url, create_username, create_date, update_date) 
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )", 
+    GetSQLValue($_SESSION['username'], "text"), 
+    GetSQLValue(0, "int"), 
+    GetSQLValue($_REQUEST['store_name'], "text"), 
+    GetSQLValue($_REQUEST['Introduction'], "text"), 
+    GetSQLValue($_REQUEST['store_tel'], "text"), 
+    GetSQLValue($_REQUEST['store_addr'], "text"), 
+    GetSQLValue($_REQUEST['detail'], "text"), 
+    GetSQLValue($_REQUEST['store_fax'], "text"), 
+    GetSQLValue($_REQUEST['store_url'], "text"), 
+    GetSQLValue($_SESSION['username'], "text"), 
+    GetSQLValue(date("Y-m-d H:i:s"), "date"), 
+    GetSQLValue(date("Y-m-d H:i:s"), "date"));
+
+  
+    // 傳回結果集
+    $result = mysqli_query($connOO, $query);
+
+    return $result;
+  }
+
+  function insert_store_product($store_no){
+
+    global $connOO;
+
+    $query = sprintf("INSERT INTO store_product 
+    ( store_no, product_list) 
+    VALUES ( %s, %s)", 
+    GetSQLValue($store_no, "int"),
+    GetSQLValue($_REQUEST['product_list'], "text"));
+
+  
+    // 傳回結果集
+    $result = mysqli_query($connOO, $query);
+
+    return $result;
+  }
+
   /****************************************************/
   /*                    main                          */
   /****************************************************/
 
   //錯誤訊息
   $errors = [];
+
+  //取消
+  if(isset($_REQUEST['cancel'])){
+    Header("Location: ". Functions::redirect('/home.php') );
+  }
+
+  //儲存為群組專用店家
+  if(isset($_REQUEST['create_group_store'])){
+    createGroupStore();
+  }
 
 
 ?>
@@ -83,7 +179,7 @@
                   </div>
                   <div class="card-body">
                     <div class="form-group float-left mr-1">
-                      <textarea name="store_name" rows="10" cols="35" class="form-control" placeholder="商品:必填"></textarea>   
+                      <textarea name="product_list" rows="10" cols="35" class="form-control" placeholder="商品:必填"></textarea>   
                     </div>
                     <div class="form-group float-left">
                       <textarea rows="10" cols="35" class="form-control" placeholder="範例" readonly>魯肉飯, 40
@@ -121,16 +217,16 @@
                   </div>
                   <div class="card-body">
                     <div class="form-group">
-                      <textarea name="store_name" rows="5" cols="50" class="form-control" placeholder="訂購說明"></textarea>   
+                      <textarea name="detail" rows="5" cols="50" class="form-control" placeholder="訂購說明"></textarea>   
                     </div>
                     <div class="form-group">
                       <label>(這裡可以寫一些你希望在訂購時，讓訂購人看的說明，例如提醒註記加糖、加辣、不加冰等等細節。此欄位可以用&nbsphtml&nbsptag)</label>
                     </div>
                     <div class="form-group">
-                      <input type="text" name="" class="form-control form-control-user" placeholder="傳真">
+                      <input type="text" name="store_fax" class="form-control form-control-user" placeholder="傳真">
                     </div>
                     <div class="form-group">
-                      <input type="text" name="" class="form-control form-control-user" placeholder="店家網址">
+                      <input type="text" name="store_url" class="form-control form-control-user" placeholder="店家網址">
                     </div>
                     <div class="form-group">
                     </div>
@@ -190,15 +286,12 @@
                           <div class="form-group mx-2">
                           <input type="submit" class="btn btn-danger btn-user" name="create_public_store"
                               value="儲存為公用店家" />
-                              儲存為公用店家
-                            </button>
+                              
                           </div>
                           <div class="form-group mx-2">
                             <input type="submit" class="btn btn-outline-danger btn-user" name="cancel"
                               value="取消返回" />
-                            <button type="button" class="btn btn-outline-danger btn-user">
-                              取消返回 
-                            </button>
+                            
                           </div>
                         </div>
 

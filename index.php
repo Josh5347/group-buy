@@ -2,10 +2,10 @@
 <?php require_once 'Connections/connectionOO.php'; ?>
 <?php require_once 'Connections/function.php'; ?>
 <?php require_once 'Classes/AccountPassword.php';?>
+<?php require_once 'Classes/Functions.php';?>
+<?php use Classes\Functions; ?>
+<?php use Classes\AccountPassword; ?>
 <?php
-
-  use Classes\AccountPassword;
-  
 
   function createAccountSuccessMsg(){
     if( isset($_SESSION['create_account']) &&
@@ -89,9 +89,6 @@
   $cookieUsername = '';
   $cookiePassword ='';
 
-  $StringExplo=explode("/",$_SERVER['REQUEST_URI']);
-  $HeadTo=$StringExplo[0]."/home.php";
-
   //當建立群組帳號成功時，轉跳至登入頁面，顯示訊息
   createAccountSuccessMsg();
 
@@ -104,7 +101,7 @@
 
     //驗證通過
     if(validation()){
-      Header("Location: ".$HeadTo);
+      Header("Location: ". Functions::redirect('/home.php') );
     }
   }
 ?>
