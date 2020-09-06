@@ -11,11 +11,12 @@
 
     //驗證通過
     if(validation()){
-
-
     
-      if ( $result = insert_store()){
+      if ( insert_store()){
 
+        $result = get_stroe();
+        
+        //取得商店編號
         $row = $result->fetch_assoc();
 
         if(insert_store_product($row['store_no'])){
@@ -36,8 +37,28 @@
   function validation(){
     global $errors;
 
-    return true;
+    //找到資料庫有一筆以上的資料
+    $result = get_stroe();
+    if( $result &&
+      $result->num_rows > 0){
+      array_push($errors, '已經有此商店名了喔!');
+      $row = $result->fetch_assoc();
+      return false;
+    }else{
+      return true;
+    }
 
+  }
+
+  function get_stroe(){
+    
+    global $connOO;
+
+    $query = sprintf("SELECT * FROM store WHERE `store_name` = %s", 
+    GetSQLValue($_REQUEST['store_name'], "text"));
+
+    $result = mysqli_query($connOO, $query);
+    return $result;
   }
 
   function insert_store(){
@@ -45,15 +66,14 @@
     global $connOO;
 
     $query = sprintf("INSERT INTO store 
-    (username, store_public, store_name, Introduction, store_tel, store_addr, detail, 
+    (public_flag, store_name, Introduction, store_tel, store_address, detail, 
     store_fax, store_url, create_username, create_date, update_date) 
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )", 
-    GetSQLValue($_SESSION['username'], "text"), 
-    GetSQLValue(0, "int"), 
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )", 
+    0, 
     GetSQLValue($_REQUEST['store_name'], "text"), 
-    GetSQLValue($_REQUEST['Introduction'], "text"), 
+    GetSQLValue($_REQUEST['introduction'], "text"), 
     GetSQLValue($_REQUEST['store_tel'], "text"), 
-    GetSQLValue($_REQUEST['store_addr'], "text"), 
+    GetSQLValue($_REQUEST['store_address'], "text"), 
     GetSQLValue($_REQUEST['detail'], "text"), 
     GetSQLValue($_REQUEST['store_fax'], "text"), 
     GetSQLValue($_REQUEST['store_url'], "text"), 
@@ -64,7 +84,7 @@
   
     // 傳回結果集
     $result = mysqli_query($connOO, $query);
-
+    
     return $result;
   }
 
@@ -151,16 +171,20 @@
                   </div>
                   <div class="card-body">
                     <div class="form-group">
-                      <input type="text" name="store_name" class="form-control form-control-user" placeholder="名稱:必填">
+                      <input type="text" name="store_name" class="form-control form-control-user" 
+                      placeholder="名稱:必填" required>
                     </div>
                     <div class="form-group">
-                      <input type="text" name="introduction" class="form-control form-control-user" placeholder="簡介">
+                      <input type="text" name="introduction" class="form-control form-control-user" 
+                      placeholder="簡介">
                     </div>
                     <div class="form-group">
-                      <input type="text" name="store_tel" class="form-control form-control-user" placeholder="電話">
+                      <input type="text" name="store_tel" class="form-control form-control-user" 
+                      placeholder="電話">
                     </div>
                     <div class="form-group">
-                      <input type="text" name="store_address" class="form-control form-control-user" placeholder="地址">
+                      <input type="text" name="store_address" class="form-control form-control-user" 
+                      placeholder="地址">
                     </div>
                   </div>
                 </div>
@@ -179,7 +203,8 @@
                   </div>
                   <div class="card-body">
                     <div class="form-group float-left mr-1">
-                      <textarea name="product_list" rows="10" cols="35" class="form-control" placeholder="商品:必填"></textarea>   
+                      <textarea name="product_list" rows="10" cols="35" class="form-control" 
+                      placeholder="商品:必填" required></textarea>   
                     </div>
                     <div class="form-group float-left">
                       <textarea rows="10" cols="35" class="form-control" placeholder="範例" readonly>魯肉飯, 40
@@ -284,7 +309,7 @@
 
                           
                           <div class="form-group mx-2">
-                          <input type="submit" class="btn btn-danger btn-user" name="create_public_store"
+                          <input type="hidden" class="btn btn-danger btn-user" name="create_public_store"
                               value="儲存為公用店家" />
                               
                           </div>

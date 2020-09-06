@@ -15,8 +15,10 @@
         GetSQLValue($_REQUEST['account'], "text"));
       
       $result = $connOO->query($sql);	
-
-      if($result){
+      $rowCount = $result->num_rows;
+      //資料庫有找到使用者帳號資料
+      if( $result &&
+          $rowCount > 0){
         $row = $result->fetch_assoc();
         if( password_verify( $_REQUEST['pwd'], $row['login_password'])){
           
