@@ -2,7 +2,12 @@
 <?php require_once 'Connections/connectionOO.php'; ?>
 <?php require_once 'Connections/function.php'; ?>
 <?php require_once 'Classes/Functions.php';?>
+<?php require_once 'Classes/Store.php';?>
+<?php require_once 'Classes/StoreProduct.php';?>
+
 <?php use Classes\Functions; ?>
+<?php use Classes\Store; ?>
+<?php use Classes\StoreProduct; ?>
 <?php
 
   function createGroupStore(){
@@ -14,7 +19,7 @@
     
       if ( insert_store()){
 
-        $result = get_stroe();
+        $result = Store::getOneByStoreName($_REQUEST['store_name']);
         
         //取得商店編號
         $row = $result->fetch_assoc();
@@ -38,7 +43,7 @@
     global $errors;
 
     //找到資料庫有一筆以上的資料
-    $result = get_stroe();
+    $result = Store::getOneByStoreName($_REQUEST['store_name']);
     if( $result &&
       $result->num_rows > 0){
       array_push($errors, '已經有此商店名了喔!');
@@ -50,16 +55,6 @@
 
   }
 
-  function get_stroe(){
-    
-    global $connOO;
-
-    $query = sprintf("SELECT * FROM store WHERE `store_name` = %s", 
-    GetSQLValue($_REQUEST['store_name'], "text"));
-
-    $result = mysqli_query($connOO, $query);
-    return $result;
-  }
 
   function insert_store(){
 
@@ -105,12 +100,51 @@
     return $result;
   }
 
+  function inquireStoreInfo(){
+    global $title, $rowStore, $rowProduct;
+    
+    $title = '修改';
+    $result = Store::getOneByStoreNo($_GET['store_no']);
+
+    //有查詢到1筆資料
+    if( $result &&
+      $result->num_rows > 0){
+
+      $rowStore = $result->fetch_assoc();
+
+      $result2 = StoreProduct::getOneByStoreNo($_GET['store_no']);
+      if( $result2 &&
+        $result2->num_rows > 0){
+        $rowProduct = $result2->fetch_assoc();
+      }else{
+        exit("查詢產品失敗 :" .$result2->error);
+      }
+
+    }else{
+      exit("查詢店家失敗 :" .$result->error);
+    }
+  }
+
   /****************************************************/
   /*                    main                          */
   /****************************************************/
 
   //錯誤訊息
   $errors = [];
+  $title = '新增';
+  //新增時，輸入欄位無資料
+  $rowStore = [
+    'store_name'    =>  '', 
+    'introduction'  =>  '', 
+    'store_tel'     =>  '', 
+    'store_address' =>  '', 
+    'detail'        =>  '', 
+    'store_fax'     =>  '', 
+    'store_url'     =>  '',  
+  ];
+  $rowProduct = [
+    'product_list'  =>  ''
+  ];
 
   //取消
   if(isset($_REQUEST['cancel'])){
@@ -122,12 +156,16 @@
     createGroupStore();
   }
 
+  //修改店家之查詢店家資料(資料由showStore.php傳送來)
+  if(isset($_GET['store_no'])){
+    inquireStoreInfo();
+  }
 
 ?>
 
 <?php require_once 'common/htmlHeader.php'; ?>
 
-  <title>團購網 - 新增商店</title>
+  <title>團購網 - <?= $title;?>商店</title>
   <link href="css/style.css" rel="stylesheet">
 </head>
 
@@ -151,7 +189,7 @@
 
           <!-- Page Heading -->
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">新增商店</h1>
+            <h1 class="h3 mb-0 text-gray-800"><?= $title;?>商店</h1>
           </div>
 
           <!-- 錯誤訊息 -->
@@ -172,19 +210,19 @@
                   <div class="card-body">
                     <div class="form-group">
                       <input type="text" name="store_name" class="form-control form-control-user" 
-                      placeholder="名稱:必填" required>
+                      placeholder="名稱:必填" value="<?= $rowStore['store_name']; ?>" required>
                     </div>
                     <div class="form-group">
                       <input type="text" name="introduction" class="form-control form-control-user" 
-                      placeholder="簡介">
+                      placeholder="簡介" value="<?= $rowStore['introduction']; ?>">
                     </div>
                     <div class="form-group">
                       <input type="text" name="store_tel" class="form-control form-control-user" 
-                      placeholder="電話">
+                      placeholder="電話" value="<?= $rowStore['store_tel']; ?>">
                     </div>
                     <div class="form-group">
                       <input type="text" name="store_address" class="form-control form-control-user" 
-                      placeholder="地址">
+                      placeholder="地址" value="<?= $rowStore['store_address']; ?>">
                     </div>
                   </div>
                 </div>
@@ -204,7 +242,7 @@
                   <div class="card-body">
                     <div class="form-group float-left mr-1">
                       <textarea name="product_list" rows="10" cols="35" class="form-control" 
-                      placeholder="商品:必填" required></textarea>   
+                      placeholder="商品:必填" required><?= $rowProduct['product_list'];?></textarea>   
                     </div>
                     <div class="form-group float-left">
                       <textarea rows="10" cols="35" class="form-control" placeholder="範例" readonly>魯肉飯, 40
@@ -242,16 +280,18 @@
                   </div>
                   <div class="card-body">
                     <div class="form-group">
-                      <textarea name="detail" rows="5" cols="50" class="form-control" placeholder="訂購說明"></textarea>   
+                      <textarea name="detail" rows="5" cols="50" class="form-control" placeholder="訂購說明"><?= $rowStore['detail']; ?></textarea>   
                     </div>
                     <div class="form-group">
                       <label>(這裡可以寫一些你希望在訂購時，讓訂購人看的說明，例如提醒註記加糖、加辣、不加冰等等細節。此欄位可以用&nbsphtml&nbsptag)</label>
                     </div>
                     <div class="form-group">
-                      <input type="text" name="store_fax" class="form-control form-control-user" placeholder="傳真">
+                      <input type="text" name="store_fax" class="form-control form-control-user" 
+                      placeholder="傳真" value="<?= $rowStore['store_fax']; ?>" >
                     </div>
                     <div class="form-group">
-                      <input type="text" name="store_url" class="form-control form-control-user" placeholder="店家網址">
+                      <input type="text" name="store_url" class="form-control form-control-user" 
+                      placeholder="店家網址" value="<?= $rowStore['store_url']; ?>" >
                     </div>
                     <div class="form-group">
                     </div>
@@ -301,13 +341,26 @@
                       </div>
                       <div class="card-body">
                         <div class="form-inline">
+<?php //接收到$_GET['store_no']資料為修改店家
+  if(isset($_GET['store_no'])){ 
+?>
+                          <div class="form-group mx-2">
+                            <input type="submit" class="btn btn-danger btn-user" name="update_group_store"
+                              value="修改群組專用店家" />
+                            
+                          </div>
+<?php
+  }else{
+?>                          
                           <div class="form-group mx-2">
                             <input type="submit" class="btn btn-danger btn-user" name="create_group_store"
                               value="儲存為群組專用店家" />
                             
                           </div>
-
-                          
+<?php
+  }
+?>
+                
                           <div class="form-group mx-2">
                           <input type="hidden" class="btn btn-danger btn-user" name="create_public_store"
                               value="儲存為公用店家" />

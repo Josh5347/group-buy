@@ -37,7 +37,7 @@
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">選店家團購:</h6>
             <a class="collapse-item" href="showStore.php">可團購店家</a>
-            <a class="collapse-item" href="createStore.php">新增團購店家</a>
+            <a class="collapse-item" href="processStore.php">新增團購店家</a>
           </div>
         </div>
       </li>

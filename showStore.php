@@ -2,107 +2,23 @@
 <?php require_once 'Connections/connectionOO.php'; ?>
 <?php require_once 'Connections/function.php'; ?>
 <?php require_once 'Classes/Functions.php';?>
+<?php require_once 'Classes/Store.php';?>
+
 <?php use Classes\Functions; ?>
+<?php use Classes\Store; ?>
+
 <?php
 
-  function createGroupStore(){
-
+  function showStore(){
     global $connOO;
 
-    //驗證通過
-    if(validation()){
-    
-      if ( insert_store()){
-
-        $result = get_stroe();
-        
-        //取得商店編號
-        $row = $result->fetch_assoc();
-
-        if(insert_store_product($row['store_no'])){
-          Header("Location: ". Functions::redirect('/home.php') );
-        }else{
-          trigger_error(mysqli_error($connOO), E_USER_ERROR);
-        }
-        
-      }else{
-        trigger_error(mysqli_error($connOO), E_USER_ERROR);
-      }
-
-
-
-    }
-  }
-
-  function validation(){
-    global $errors;
-
-    //找到資料庫有一筆以上的資料
-    $result = get_stroe();
-    if( $result &&
-      $result->num_rows > 0){
-      array_push($errors, '已經有此商店名了喔!');
-      $row = $result->fetch_assoc();
-      return false;
+    $result = Store::getAllByUsername($_SESSION['username']);
+    if (!$result){
+      exit("查詢可團購店家失敗 :" .$result->error);
     }else{
-      return true;
+      return $result;
     }
 
-  }
-
-  function get_stroe(){
-    
-    global $connOO;
-
-    $query = sprintf("SELECT * FROM store WHERE `store_name` = %s", 
-    GetSQLValue($_REQUEST['store_name'], "text"));
-
-    $result = mysqli_query($connOO, $query);
-    return $result;
-  }
-
-  function insert_store(){
-
-    global $connOO;
-
-    $query = sprintf("INSERT INTO store 
-    (public_flag, store_name, Introduction, store_tel, store_address, detail, 
-    store_fax, store_url, create_username, create_date, update_date) 
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )", 
-    0, 
-    GetSQLValue($_REQUEST['store_name'], "text"), 
-    GetSQLValue($_REQUEST['introduction'], "text"), 
-    GetSQLValue($_REQUEST['store_tel'], "text"), 
-    GetSQLValue($_REQUEST['store_address'], "text"), 
-    GetSQLValue($_REQUEST['detail'], "text"), 
-    GetSQLValue($_REQUEST['store_fax'], "text"), 
-    GetSQLValue($_REQUEST['store_url'], "text"), 
-    GetSQLValue($_SESSION['username'], "text"), 
-    GetSQLValue(date("Y-m-d H:i:s"), "date"), 
-    GetSQLValue(date("Y-m-d H:i:s"), "date"));
-
-  
-    // 傳回結果集
-    $result = mysqli_query($connOO, $query);
-    
-    return $result;
-  }
-
-  function insert_store_product($store_no){
-
-    global $connOO;
-
-    $query = sprintf("INSERT INTO store_product 
-    ( store_no, product_list) 
-    VALUES ( %s, %s)", 
-    GetSQLValue($store_no, "int"),
-    GetSQLValue($_REQUEST['product_list'], "text"));
-
-  
-    // 傳回結果集
-    $result = mysqli_query($connOO, $query);
-
-    return $result;
   }
 
   /****************************************************/
@@ -111,6 +27,10 @@
 
   //錯誤訊息
   $errors = [];
+  $i = 0;
+
+  $storeResult = showStore();
+  $rowsCount = $storeResult->num_rows;
 
   //取消
   if(isset($_REQUEST['cancel'])){
@@ -156,22 +76,30 @@
 
           <!-- 錯誤訊息 -->
           <?php require_once 'common/validationErrorMessage.php'?>
-
-         
+<?php 
+  if($rowsCount > 0){ 
+    while($rowStore = $storeResult->fetch_assoc()){
+      $i++; 
+      $x = ($i + 2) % 2;
+      //每2個店家一行
+      if((($i + 2) % 2) == 1){      
+?>  
           <!-- Content Row -->
           <div class="row">
-
+<?php
+      }
+?>
             <!-- Earnings (Monthly) Card Example -->
             <div class="col-xl-6 col-md-6 mb-4">
               <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-sm font-weight-bold text-gray-800 text-uppercase text-break">簡介:123456789123456789</div>
-                      <div class="h5 font-weight-bold text-primary text-break"><a href="#">店家:123456789123456789</a></div>
+                      <div class="text-sm font-weight-bold text-gray-800 text-uppercase text-break">簡介:<?=$rowStore['introduction']; ?></div>
+                      <div class="h5 font-weight-bold text-primary text-break"><a href="/processStore.php?store_no=<?= $rowStore['store_no'];?>">店家:<?= $rowStore['store_name'];?></a></div>
                     </div>
                     <div class="col-auto">
-                      <input type="button" class="btn btn-danger btn-user" data-toggle="modal" data-target="#uploadSelectFilesModal"
+                      <input type="button" class="btn btn-danger btn-user" data-toggle="modal" data-target="#buyInfoModal<?= $rowStore['store_no'];?>"
                       value="團購" />
                     </div>
                   </div>
@@ -179,21 +107,20 @@
               </div>
             </div>
 
-
             <form class="user">
               <!-- The Modal -->
-              <div class="modal" id="uploadSelectFilesModal">
+              <div class="modal" id="buyInfoModal<?= $rowStore['store_no'];?>">
                 <div class="modal-dialog">
                   <div class="modal-content">
 
                     <!-- Modal Header -->
                     <div class="modal-header">
-                      <div class="modal-title"><h4>上傳圖片</h4></div>
+                      <div class="modal-title"><h4>開啟<?= $rowStore['store_name'];?>的團購</h4></div>
                     </div>
 
                     <!-- Modal body -->
                     <div class="modal-body">
-                      <h6>支援&nbsp.jpg,&nbsp.png,&nbsp.gif,&nbsp.bmp&nbsp等四種圖片格式</h6>
+                      
 
                     </div>
 
@@ -210,28 +137,18 @@
             </form>
 
 
-            <!-- Earnings (Monthly) Card Example -->
-            <div class="col-xl-6 col-md-6 mb-4">
-              <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-sm font-weight-bold text-gray-800 text-uppercase text-break">簡介:abcdefghijklmnopq</div>
-                      <div class="h5 font-weight-bold text-primary text-break"><a href="#">店家:abcdefghijklmnopq</a></div>
-                    </div>
-                    <div class="col-auto">
-                      <input type="button" class="btn btn-danger btn-user" data-toggle="modal" data-target="#uploadSelectFilesModal"
-                      value="團購" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-
+<?php
+      //每2個店家一行
+      if((($i + 2) % 2)== 0){
+?>
           </div>
           <!-- Content Row End-->
-
+<?php
+      }
+    }
+          /* end of while */
+  } ?>
+          <!-- end of if -->
 
         </div>
         <!-- /.container-fluid -->
