@@ -101,7 +101,7 @@
   }
 
   function inquireStoreInfo(){
-    global $title, $rowStore, $rowProduct;
+    global $title, $rowStore, $rowProduct, $connOO;
     
     $title = '修改';
     $result = Store::getOneByStoreNo($_GET['store_no']);
@@ -117,11 +117,11 @@
         $result2->num_rows > 0){
         $rowProduct = $result2->fetch_assoc();
       }else{
-        exit("查詢產品失敗 :" .$result2->error);
+        exit("查詢產品失敗 :" .$connOO->error);
       }
 
     }else{
-      exit("查詢店家失敗 :" .$result->error);
+      exit("查詢店家失敗 :" .$connOO->error);
     }
   }
 
@@ -425,45 +425,9 @@
       </div>
       <!-- End of Main Content -->
 
-      <!-- Footer -->
-      <footer class="sticky-footer bg-white">
-        <div class="container my-auto">
-          <div class="copyright text-center my-auto">
-            <span>Copyright &copy; Your Website 2020</span>
-          </div>
-        </div>
-      </footer>
-      <!-- End of Footer -->
+<!--  copy right 及登出模組 -->
+<?php require_once 'common/htmlFooter.php'; ?>
 
-    </div>
-    <!-- End of Content Wrapper -->
-
-  </div>
-  <!-- End of Page Wrapper -->
-
-  <!-- Scroll to Top Button-->
-  <a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-  </a>
-
-  <!-- Logout Modal-->
-  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          <a class="btn btn-primary" href="login.html">Logout</a>
-        </div>
-      </div>
-    </div>
-  </div>
 
 
 
