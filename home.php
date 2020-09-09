@@ -82,68 +82,17 @@
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <button type="button" class="btn btn-info btn-sm float-left mr-2">4人<br />235元</button>
+                      <button type="button" class="btn btn-info btn-sm float-left mr-2"><?= $rowBuyInfo['amount'];?>人<br /><?=$rowBuyInfo['sum'];?>元</button>
                       <div class="text-sm font-weight-bold text-gray-800 text-uppercase text-break"><?= $rowBuyInfo['in_charge_name'];?>發起的</div>
                       <a href="/processStore.php?store_no=<?= $rowBuyInfo['store_no'];?>"><div class="h5 font-weight-bold text-info text-break"><?=$rowBuyInfo['store_name']; ?></div></a>
                     </div>
                     <div class="col-auto">
-                      <input type="button" class="btn btn-danger" data-toggle="modal" data-target="#buyInfoModal<?= $rowBuyInfo['store_no'];?>"
-                      value="訂購" />
+                      <button type="button" class="btn btn-danger" onclick="location.href='/addOrder.php?order_id=<?= $rowBuyInfo['order_id'];?>'">訂購</button>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            <form class="user" method="post" action="<?= $_SERVER['PHP_SELF']; ?>">
-              <!-- The Modal -->
-              <div class="modal" id="buyInfoModal<?= $rowBuyInfo['store_no'];?>">
-                <div class="modal-dialog">
-                  <div class="modal-content">
-
-                    <!-- Modal Header -->
-                    <div class="modal-header">
-                      <div class="modal-title"><h4><?= $rowBuyInfo['store_name'];?>的團購</h4></div>
-                    </div>
-
-                    <!-- Modal body -->
-                    <div class="modal-body">
-                      <div class="form-group">
-                        <input type="text" name="in_charge_name" class="form-control form-control-user" 
-                        placeholder="負責人(必輸)"  required/>
-                      </div>
-                      <div class="form-group">
-                        <input type="text" name="expired_time" class="form-control form-control-user" 
-                        placeholder="截止時間 格式 hh:mm:ss" />
-                      </div>
-                      <div class="form-group">
-                        <textarea name="announce" rows="5" cols="35" class="form-control" 
-                        placeholder="公告事項" ></textarea>   
-                      </div>                 
-                      <div class="form-group">
-                        <label for="info1">訂單新增訂購人資訊欄:</label>
-                        <div class="form-inline">
-                          <input id="info1" type="text" name="info_1" class="form-control form-control-user col" 
-                          placeholder="例如:電話分機" />
-                          <input type="text" name="info_2" class="form-control form-control-user col m-2" 
-                          placeholder="例如:面交地點" />
-                        </div>
-                      </div>
-
-                    </div>
-
-                    <!-- Modal footer -->
-                    <div class="modal-footer">
-                      <button type="submit" class="btn btn-danger btn-user" >開始團購</button>
-                      <button type="button" class="btn btn-outline-danger btn-user" data-dismiss="modal">取消返回</button>
-                      <input type="hidden" name="store_no" value="<?=$rowBuyInfo['store_no']; ?>" />
-                    </div>
-
-                  </div>
-                </div>
-              </div>
-              <!-- Model end -->
-            </form>
 
 
 <?php
