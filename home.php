@@ -87,7 +87,7 @@
                       <a href="/processStore.php?store_no=<?= $rowBuyInfo['store_no'];?>"><div class="h5 font-weight-bold text-info text-break"><?=$rowBuyInfo['store_name']; ?></div></a>
                     </div>
                     <div class="col-auto">
-                      <button type="button" class="btn btn-danger" onclick="location.href='/addOrder.php?order_id=<?= $rowBuyInfo['order_id'];?>'">訂購</button>
+                      <button type="button" class="btn btn-danger" onclick="location.href='/addOrder.php?buy_id=<?= $rowBuyInfo['buy_id'];?>'">訂購</button>
                     </div>
                   </div>
                 </div>

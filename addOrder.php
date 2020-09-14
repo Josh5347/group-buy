@@ -26,7 +26,7 @@
   function getBuyInfo(){
     global $connOO;
 
-    $result = BuyInfo::getOneByBuyOrderId($_GET['order_id']);
+    $result = BuyInfo::getOneByBuyOrderId($_GET['buy_id']);
     if (!$result){
       exit("查詢團購資訊失敗 :" .$connOO->error);
     }else{
@@ -47,22 +47,53 @@
   }
 
   function createOrder(){
-
+    global $connOO;
+    $order_sn = 0;
+    $sum = 0;
+    $totalAmount = 0;
     $arrayPrice = [];
 
-    $i = 1;
-    do{
-      array_push($arrayPrice, $_REQUEST['price'.$i]);
-      $i++;
-    }while (isset($_REQUEST['price'.$i]));
-
+    // 將表單的price資料送入$arrayPrice的堆疊陣列中
+    for($i = 1; $i <= $_REQUEST['product_count']; $i++){
+      if(isset($_REQUEST['price'.$i])){
+        array_push($arrayPrice, $_REQUEST['price'.$i]);
+      }
+    }
 
     //驗證通過
     if(validation($arrayPrice )){
+      // 取得商店編號
+      $resultBuyInfo = getBuyInfo();
+      $rowBuyInfo = $resultBuyInfo->fetch_assoc();
 
-      foreach($_REQUEST['product'] as $product){
+      foreach($_REQUEST['amount'] as $amount){
+        $product_no = array_pop($_REQUEST['product_no']);
+        $product = array_pop($_REQUEST['product']);
+        $price = array_pop($arrayPrice);
+        $explanation = array_pop($_REQUEST['explaination']);
 
+        for($i = 1; $i <= $amount; $i++ ){
+          //總金額
+          $sum += (int)$price;
+          //序號
+          $order_sn++;
+
+          if(!insert_order_info($rowBuyInfo['amount'], $order_sn, $rowBuyInfo['store_no'], $product_no, $product, $price, $explanation)){
+            trigger_error(mysqli_error($connOO), E_USER_ERROR);
+          }
+          
+        }
+        
       }
+      $totalAmount = $order_sn;
+      // 變更團購資訊的數量及總金額
+      if(update_buy_info($sum)){
+        Header("Location: ". Functions::redirect('/home.php') );
+      }else{
+        trigger_error(mysqli_error($connOO), E_USER_ERROR);
+      }
+
+      
     }
   }
 
@@ -70,38 +101,51 @@
     global $errors;
 
     if(count($_REQUEST['product']) != count($arrayPrice)){
-      $errors = "有數量欄未輸入";
+      $errors = ["有數量欄未輸入"];
       return false;
     }else{
       return true;
     }
   }
 
-  function insert_order(){
+  function insert_order_info($order_id, $order_sn, $store_no, $product_no, $product, $price, $explanation){
 
     global $connOO;
 
-    $query = sprintf("INSERT INTO order 
-    (public_flag, store_name, Introduction, store_tel, store_address, detail, 
-    store_fax, store_url, create_username, create_date, update_date) 
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )", 
-    0, 
-    GetSQLValue($_REQUEST['store_name'], "text"), 
-    GetSQLValue($_REQUEST['introduction'], "text"), 
-    GetSQLValue($_REQUEST['store_tel'], "text"), 
-    GetSQLValue($_REQUEST['store_address'], "text"), 
-    GetSQLValue($_REQUEST['detail'], "text"), 
-    GetSQLValue($_REQUEST['store_fax'], "text"), 
-    GetSQLValue($_REQUEST['store_url'], "text"), 
-    GetSQLValue($_SESSION['username'], "text"), 
-    GetSQLValue(date("Y-m-d H:i:s"), "date"), 
-    GetSQLValue(date("Y-m-d H:i:s"), "date"));
+    $query = sprintf("INSERT INTO order_info 
+    ( buy_id, order_id, order_sn, store_no, orderer, product_no, product, price, explanation, order_time)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
+    GetSQLValue($_GET['buy_id'], "int"), 
+    GetSQLValue( ++$order_id, "int"), 
+    GetSQLValue($order_sn, "text"), 
+    GetSQLValue($store_no, "text"), 
+    GetSQLValue($_REQUEST['orderer'], "text"), 
+    GetSQLValue($product_no, "text"), 
+    GetSQLValue($product, "text"), 
+    GetSQLValue($price, "int"), 
+    GetSQLValue($explanation, "text"), 
+    GetSQLValue(date("Y-m-d H:i:s"), "text"));
 
   
     // 傳回結果集
     $result = mysqli_query($connOO, $query);
     
     return $result;
+  }
+
+  function update_buy_info($sum){
+    global $connOO, $rowBuyInfo;
+    
+    $query = sprintf("UPDATE `buy_info` SET `amount` = %d, `sum` = %d WHERE `buy_info`.`buy_id` = %d",
+    GetSQLValue(++$rowBuyInfo['amount'],"int"),
+    GetSQLValue($sum + $rowBuyInfo['sum'],"int"),
+    GetSQLValue($_GET['buy_id'],"int")
+    );
+
+    $result = mysqli_query($connOO, $query);
+    
+    return $result;
+
   }
 
   /****************************************************/
@@ -114,7 +158,7 @@
   $rowBuyInfo = ['store_name' => ''];
   $arrayProducts = [];
 
-  if(isset($_GET['order_id'])){
+  if(isset($_GET['buy_id'])){
     showOrder();
   }
 
@@ -167,7 +211,8 @@
                 </div>
 
                 <div class="card-body">
-                  <form method="post" action="<?= $_SERVER['PHP_SELF'];?>" class="user" >
+                  <form method="post" action="<?= $_SERVER['PHP_SELF'].'?buy_id='.$_GET['buy_id'];?>" 
+                  class="user" >
                     <table class="table table-bordered">
                       <thead>
                         <tr>
@@ -243,6 +288,7 @@
                       <div class="form-group col-md-4">
                         <input type="text" name="orderer" class="form-control form-control-user" 
                         placeholder="訂購人:必輸" required />
+                        <input type="hidden" name="product_count" value="<?= $i;?>" />
                       </div>
                       <div class="col-md-8">
                           <button type="submit" name="create_order" class="btn btn-danger btn-user mr-3">確認訂購</button>

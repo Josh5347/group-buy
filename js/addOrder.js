@@ -19,14 +19,14 @@ $(function () {
       // 若數量欄有數字，將此欄name設成amount[]，即可透過表單傳送
       tagInputAmount.attr("name", "amount[]");
       tagInputProduct.attr("name", "product[]");
-      tagInputExpalin.attr("name", "explain[]");
+      tagInputExpalin.attr("name", "explaination[]");
       tagInputPrice.attr("name", attrNamePrice);
       tagInputProductNo.attr("name", "product_no[]")
 
       radioAttrName = tagRadioSubPrice.attr("name");
       tagRadioSubPrice.attr("name", attrNamePrice);
       //點擊價錢第一個radio
-      tagRadioSubPrice.first().click();
+      // tagRadioSubPrice.first().click();
 
     }else{
       ++amount;

@@ -7,13 +7,13 @@
   class BuyInfo{
 
     
-    public static function getOneByBuyOrderId($order_id){
+    public static function getOneByBuyOrderId($buy_id){
     
       global $connOO;
   
       $query = sprintf("SELECT buy_info.*, store.store_name FROM buy_info INNER JOIN store ON buy_info.store_no = store.store_no
-      WHERE `order_id` = %s", 
-      GetSQLValue($order_id, "text"));
+      WHERE `buy_id` = %s", 
+      GetSQLValue($buy_id, "text"));
   
       $result = mysqli_query($connOO, $query);
       return $result;
