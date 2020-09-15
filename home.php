@@ -3,7 +3,6 @@
 <?php require_once 'Connections/function.php'; ?>
 <?php require_once 'Classes/Functions.php';?>
 <?php require_once 'Classes/BuyInfo.php';?>
-
 <?php use Classes\Functions; ?>
 <?php use Classes\BuyInfo; ?>
 
@@ -78,7 +77,7 @@
 ?>
             <!-- Earnings (Monthly) Card Example -->
             <div class="col-xl-6 col-md-6 mb-4">
-              <div class="card border-left-info shadow h-100 py-2">
+              <div class="card border-left-info shadow h-100">
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
@@ -87,7 +86,8 @@
                       <a href="/processStore.php?store_no=<?= $rowBuyInfo['store_no'];?>"><div class="h5 font-weight-bold text-info text-break"><?=$rowBuyInfo['store_name']; ?></div></a>
                     </div>
                     <div class="col-auto">
-                      <button type="button" class="btn btn-danger" onclick="location.href='/addOrder.php?buy_id=<?= $rowBuyInfo['buy_id'];?>'">訂購</button>
+                      <button type="button" class="btn btn-danger" onclick="location.href='/addOrder.php?buy_id=<?= $rowBuyInfo['buy_id'];?>'">訂購</button><br />
+                      <button type="button" class="btn btn-link" onclick="location.href='/managerOrder.php?buy_id=<?= $rowBuyInfo['buy_id'];?>'"><u>管理</u></button>
                     </div>
                   </div>
                 </div>

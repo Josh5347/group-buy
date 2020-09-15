@@ -1,4 +1,3 @@
-<?php require_once 'common/phpHeader.php'; ?>
 <?php require_once 'Connections/connectionOO.php'; ?>
 <?php require_once 'Connections/function.php'; ?>
 <?php require_once 'Classes/AccountPassword.php';?>
@@ -6,6 +5,10 @@
 <?php use Classes\Functions; ?>
 <?php use Classes\AccountPassword; ?>
 <?php
+
+  if(!isset($_SESSION)){
+    session_start();
+  }
 
   function createAccountSuccessMsg(){
     if( isset($_SESSION['create_account']) &&

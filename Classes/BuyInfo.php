@@ -7,7 +7,7 @@
   class BuyInfo{
 
     
-    public static function getOneByBuyOrderId($buy_id){
+    public static function getOneByBuyId($buy_id){
     
       global $connOO;
   

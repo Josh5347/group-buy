@@ -26,7 +26,7 @@
   function getBuyInfo(){
     global $connOO;
 
-    $result = BuyInfo::getOneByBuyOrderId($_GET['buy_id']);
+    $result = BuyInfo::getOneByBuyId($_GET['buy_id']);
     if (!$result){
       exit("查詢團購資訊失敗 :" .$connOO->error);
     }else{
