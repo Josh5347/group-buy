@@ -5,11 +5,13 @@
 <?php require_once 'Classes/Store.php';?>
 <?php require_once 'Classes/StoreProduct.php';?>
 <?php require_once 'Classes/BuyInfo.php';?>
+<?php require_once 'Classes/OrderInfo.php';?>
 
 <?php use Classes\Functions; ?>
 <?php use Classes\Store; ?>
 <?php use Classes\StoreProduct; ?>
 <?php use Classes\BuyInfo; ?>
+<?php use Classes\OrderInfo; ?>
 
 <?php
 
@@ -33,6 +35,49 @@
     }
 
   }
+
+  function getOrderInfoSortByAmount(){
+    global $connOO;
+    $arrayOrders = [];
+    $prevProduct = '';
+
+    $resultOrderByAmount = OrderInfo::getAllSortByAmount($_GET['buy_id']);
+    if (!$resultOrderByAmount){
+      exit("查詢訂單資訊失敗 :" .$connOO->error);
+    }else
+
+    // 將資料庫內容送進陣列中
+    while( $row = $resultOrderByAmount->fetch_assoc()){
+      $row['amount'] = 1;
+
+      if($row['product'] != $prevProduct){
+        $prevProduct = $row['product'];
+      }else{
+        $row['amount']++;
+      }
+      array_push($arrayOrders, $row);
+    }
+
+    // 以 product為key1 ,amount為key2排序
+    usort($arrayOrders, function($a, $b){
+      if($a['product'] == $b['product']){
+        if($a['amount'] == $b['amount']){
+          return 0;
+        }elseif($a['amount'] > $b['amount']){
+          return -1;
+        }else{
+          return 1;
+        }
+      }else if($a['product'] > $b['product']){
+        return 1;
+      }else{
+        return -1;
+      }
+    });
+
+    return $arrayOrders;
+
+  }
   /****************************************************/
   /*                    main                          */
   /****************************************************/
@@ -40,10 +85,13 @@
   //錯誤訊息
   $errors = [];
   $buyInfo = [];
+  $ordersByAmount = '';
 
   //取消
   if(isset($_REQUEST['buy_id'])){
-    showInfo();    
+    showInfo();
+    $ordersByAmount = getOrderInfoSortByAmount();
+
   }
 
 ?>
@@ -96,15 +144,15 @@
                       <tbody>
                         <tr>
                           <td class="pr-5">已付</td>
-                          <td class="pr-5">0</td>
+                          <td class="pr-5"><?= $buyInfo['total_paid']; ?></td>
                         </tr>
                         <tr>
                           <td class="pr-5">剩下</td>
-                          <td class="pr-5">235</td>
+                          <td class="pr-5"><?= $buyInfo['sum'] - $buyInfo['total_paid']; ?></td>
                         </tr>
                         <tr>
                           <td class="pr-5 text-danger"><h5>總價</h5></td>
-                          <td class="pr-5 text-danger"><h5>235</h5></td>
+                          <td class="pr-5 text-danger"><h5><?= $buyInfo['sum']; ?></h5></td>
                         </tr>
                       </tbody>
                     </table>
@@ -127,12 +175,16 @@
                   <h6 class="m-0 font-weight-bold text-primary">進度設定</h6>
                 </div>
                 <div class="card-body">
-                  <ul>
-                    <li class="mb-2">截止時間: 沒有</li>
+                  <ul class="ml-n3">
+                    <li class="mb-2">截止時間: 
+                    <?= ($buyInfo['expired_time'] == '')? '沒有': substr($buyInfo['expired_time'], 0, 5); ?>
+                    </li>
                     <li class="mb-2">截止數量: 沒有</li>
                     <li class="mb-2">截止金額: 沒有</li>
                     <li class="mb-2">訂單
-                      <span class="text-danger">進行中</span>
+                    <?= ($buyInfo['enable'] == 1)? 
+                      '<span class="text-danger">進行中</span>':
+                      '<span class="text-success">已結束</span>'; ?>
                       <button type="button" class="btn btn-sm btn-light">停止加訂</button>
                     </li>
                     <li class="mb-2">
@@ -140,7 +192,7 @@
                       <button type="button" class="btn btn-sm btn-light">留在首頁</button>
                     </li>
                     <li class="mb-2">
-                      <button type="button" class="btn btn-sm btn-success">下載訂購單</button>
+                      <button type="button" class="btn btn-sm btn-danger">下載訂購單</button>
                     </li>
                   </ul>
                 </div>
@@ -203,7 +255,47 @@
                   </div>
                   <div id="collapse1" class="collapse show" data-parent="#accordion">
                     <div class="card-body">
-                      Lorem ipsum..
+                      <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                          <thead>
+                            <tr>
+                              <th class="text-left">產品</th>
+                              <th class="text-right">數量</th>
+                              <th class="text-right">單價</th>
+                              <th class="text-right">已付數</th>
+                              <th class="text-center">顯示說明</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <?php 
+                            $prevProduct = '';
+                            foreach($ordersByAmount as $orderByAmount  ){
+                              if($prevProduct != $orderByAmount['product'] ){
+                                $prevProduct = $orderByAmount['product'];
+                            ?>
+                                </tr>
+                                <tr>
+                                  <td class="text-left"><?= $orderByAmount['product'];?></td>
+                                  <td class="text-right"><?= $orderByAmount['amount']?></td>
+                                  <td class="text-right"><?= $orderByAmount['price'];?></td>
+                                  <td class="text-right"><?= $orderByAmount['paid'];?></td>
+                                  <td class="text-center"><?= $orderByAmount['orderer'];?></td>
+                                
+                              <?php
+                                }else{                                 
+                              ?>
+                                <td class="text-center"><?= $orderByAmount['orderer'];?></td>
+                              <?php
+                                }
+                              ?>
+                              
+                            <?php
+                            }
+                            ?>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 </div>
