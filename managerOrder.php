@@ -14,6 +14,9 @@
 <?php use Classes\OrderInfo; ?>
 
 <?php
+  function checkPaid($paid){
+    return ($paid)? "paid-color": "unpaid-color";
+  }
 
   function showInfo(){
     global $buyInfo;
@@ -37,7 +40,7 @@
   }
 
   function getOrderInfoSortByAmount(){
-    global $connOO;
+    global $connOO, $numOfProduct;
     $arrayOrders = [];
     $prevProduct = '';
 
@@ -46,21 +49,25 @@
       exit("查詢訂單資訊失敗 :" .$connOO->error);
     }else
 
+    $i = 1;
     // 將資料庫內容送進陣列中
     while( $row = $resultOrderByAmount->fetch_assoc()){
-      $row['amount'] = 1;
 
       if($row['product'] != $prevProduct){
         $prevProduct = $row['product'];
+        $i = 1;
+        $row['amount'] = $i;
       }else{
-        $row['amount']++;
+        $i++;
+        $row['amount'] = $i;
       }
       array_push($arrayOrders, $row);
+      $numOfProduct++;
     }
 
-    // 以 product為key1 ,amount為key2排序
+    // 以 product_no為key1 升冪 ,amount為key2排序 降冪
     usort($arrayOrders, function($a, $b){
-      if($a['product'] == $b['product']){
+      if($a['product_no'] == $b['product_no']){
         if($a['amount'] == $b['amount']){
           return 0;
         }elseif($a['amount'] > $b['amount']){
@@ -68,7 +75,7 @@
         }else{
           return 1;
         }
-      }else if($a['product'] > $b['product']){
+      }else if($a['product_no'] > $b['product_no']){
         return 1;
       }else{
         return -1;
@@ -86,6 +93,7 @@
   $errors = [];
   $buyInfo = [];
   $ordersByAmount = '';
+  $numOfProduct = 0; // 份數
 
   //取消
   if(isset($_REQUEST['buy_id'])){
@@ -100,6 +108,8 @@
 
   <title>管理訂單</title>
   <link href="css/style.css" rel="stylesheet">
+  <link href="css/managerOrder.css" rel="stylesheet">
+  <script src="js/managerOrder.js"></script>
 </head>
 
 <body id="page-top">
@@ -138,21 +148,21 @@
                 </div>
                 <div class="card-body">
                   <div class="form-group">
-                    <span>共 6 份</span>
+                    <span>共 <?= $numOfProduct;?> 份</span>
                     <hr>
                     <table class="table table-borderless text-right">
                       <tbody>
                         <tr>
                           <td class="pr-5">已付</td>
-                          <td class="pr-5"><?= $buyInfo['total_paid']; ?></td>
+                          <td class="pr-5 total-paid"><?= $buyInfo['total_paid']; ?></td>
                         </tr>
                         <tr>
                           <td class="pr-5">剩下</td>
-                          <td class="pr-5"><?= $buyInfo['sum'] - $buyInfo['total_paid']; ?></td>
+                          <td class="pr-5 total-unpaid"><?= $buyInfo['sum'] - $buyInfo['total_paid']; ?></td>
                         </tr>
                         <tr>
                           <td class="pr-5 text-danger"><h5>總價</h5></td>
-                          <td class="pr-5 text-danger"><h5><?= $buyInfo['sum']; ?></h5></td>
+                          <td class="pr-5 text-danger sum"><h5><?= $buyInfo['sum']; ?></h5></td>
                         </tr>
                       </tbody>
                     </table>
@@ -278,13 +288,33 @@
                                   <td class="text-left"><?= $orderByAmount['product'];?></td>
                                   <td class="text-right"><?= $orderByAmount['amount']?></td>
                                   <td class="text-right"><?= $orderByAmount['price'];?></td>
-                                  <td class="text-right"><?= $orderByAmount['paid'];?></td>
-                                  <td class="text-center"><?= $orderByAmount['orderer'];?></td>
+                                  <td class="text-right paid-row-sum"><?= $orderByAmount['paid'];?></td>
+                                  <td class="text-center orderer <?= checkPaid($orderByAmount['paid'])?>" 
+                                  data-paid="<?= $orderByAmount['paid'];?>"
+                                  data-order-sn="<?= $orderByAmount['order_sn'];?>"
+                                  data-buy-id="<?= $buyInfo['buy_id'];?>" 
+                                  data-order-id="<?= $orderByAmount['order_id'];?>" 
+                                  data-total-paid="<?= $buyInfo['total_paid'];?>" 
+                                  data-sum="<?=$buyInfo['sum'];?>"
+                                  data-price="<?= $orderByAmount['price'];?>"
+                                  >
+                                    <?= $orderByAmount['orderer'];?>
+                                  </td>
                                 
                               <?php
                                 }else{                                 
                               ?>
-                                <td class="text-center"><?= $orderByAmount['orderer'];?></td>
+                                <td class="text-center orderer <?= checkPaid($orderByAmount['paid'])?>"
+                                data-paid="<?= $orderByAmount['paid'];?>"
+                                data-order-sn="<?= $orderByAmount['order_sn'];?>"
+                                data-buy-id="<?= $buyInfo['buy_id'];?>" 
+                                data-order-id="<?= $orderByAmount['order_id'];?>" 
+                                data-total-paid="<?= $buyInfo['total_paid'];?>" 
+                                data-sum="<?=$buyInfo['sum'];?>"
+                                data-price="<?= $orderByAmount['price'];?>"
+                                >
+                                  <?= $orderByAmount['orderer'];?>
+                                </td>
                               <?php
                                 }
                               ?>

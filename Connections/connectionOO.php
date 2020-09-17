@@ -1,9 +1,8 @@
 <?php
 
-require_once 'Classes/DbParm.php';
-use Classes\DbParm;
 
-$connOO = new mysqli(DbParm::DB_HOST, DbParm::DB_USERNAME, DbParm::DB_PASSWORD, DbParm::DB_DATABASE);
+
+$connOO = new mysqli('localhost', 'group_buy', 'group_buy', 'group_buy');
 
 /* check connection */
 if (mysqli_connect_errno()) {
