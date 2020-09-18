@@ -30,11 +30,7 @@ $(function () {
       $(this).data("paid","1");
       totalPaid += price;
       totalUnPaid = sum - totalPaid;
-      totalPaid_td.text(totalPaid);
-      totalUnPaid_td.text(totalUnPaid);
-      sum_td.text(sum);
-      $(this).parent().find(".orderer").data("total-paid", totalPaid);
-      $(this).parent().find(".orderer").data("sum", sum);
+
     }else{
       // 取消付款
       console.log("取消");
@@ -46,12 +42,19 @@ $(function () {
       $(this).data("paid","0");
       totalPaid -= price;
       totalUnPaid = sum - totalPaid;
-      totalPaid_td.text(totalPaid);
-      totalUnPaid_td.text(totalUnPaid);
-      sum_td.text(sum);
-      $(this).parent().find(".orderer").data("total-paid", totalPaid);
-      $(this).parent().find(".orderer").data("sum", sum);
     }
+
+    // 更新資料表buy_info的total_paid
+    updateTotalPaidOfBuyInfo(buy_id, totalPaid);
+    // 更新網頁 "金額計算" 欄中的已付及剩下金額
+    totalPaid_td.text(totalPaid);
+    totalUnPaid_td.text(totalUnPaid);
+    sum_td.text(sum);
+    // 更新網頁中的data-total-paid值
+    $(".orderer").each(function(){
+      $(this).data("total-paid", totalPaid);
+    });
+
   });
 
   function updatePaidOfOrderInfo(buy_id, order_id, order_sn, paid){
@@ -76,4 +79,23 @@ $(function () {
     });// end of ajax
   }
 
+  function updateTotalPaidOfBuyInfo(buy_id,  total_paid){
+    var dataInput = {
+      buyId : buy_id,
+      totalPaid: total_paid
+    };
+
+    $.ajax({
+        url: 'ajax/updateTotalPaid.php',
+        data: dataInput,
+        type: 'POST',
+        dataType: 'JSON',
+        success: function(data) {
+            console.log(data);
+            
+        }// end of success
+
+
+    });// end of ajax
+  }
 });

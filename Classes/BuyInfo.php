@@ -31,6 +31,19 @@
       $result = mysqli_query($connOO, $query);
       return $result;
     }
+
+    public static function updateTotalPaid($buyId, $totalPaid){
+
+      global $connOO;
+
+      $query = sprintf("UPDATE buy_info SET `total_paid` = %d  WHERE `buy_id` = %d",
+      GetSQLValue((int)$totalPaid, "int"),
+      GetSQLValue((int)$buyId, "int")
+      );
+      
+      $result = mysqli_query($connOO, $query);
+      return $result;
+    }
   }
 
 ?>

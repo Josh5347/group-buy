@@ -35,6 +35,21 @@
       $result = mysqli_query($connOO, $query);
       return $result;
     }
+
+    public static function getPaidByBuyIdByProduct($buyId, $ProductNo){
+
+      global $connOO;
+
+      $query = sprintf("SELECT * FROM order_info 
+      WHERE `buy_id` = %d AND `product_no` = %s AND `paid` = 1", 
+      GetSQLValue((int)$buyId, "int"),
+      GetSQLValue($ProductNo, "text")
+    );
+
+      $result = mysqli_query($connOO, $query);
+      return $result;
+
+    }
   }
 
 ?>

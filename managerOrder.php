@@ -57,9 +57,15 @@
         $prevProduct = $row['product'];
         $i = 1;
         $row['amount'] = $i;
+        // 取得每一產品的已付數
+
+        $paidRowSum = 
+          $row['paid_row_sum'] = 
+          getPaidRowSum($row['buy_id'], $row['product_no']);
       }else{
         $i++;
         $row['amount'] = $i;
+        $row['paid_row_sum'] = $paidRowSum;
       }
       array_push($arrayOrders, $row);
       $numOfProduct++;
@@ -83,6 +89,19 @@
     });
 
     return $arrayOrders;
+
+  }
+
+  function getPaidRowSum($buyId, $ProductNo){
+    global $connOO;
+
+    $result = OrderInfo::getPaidByBuyIdByProduct($buyId, $ProductNo);
+    if (!$result){
+      exit("查詢團購資訊失敗 :" .$connOO->error);
+    }else{
+      // 傳回查詢列數
+      return $result->num_rows;
+    }
 
   }
   /****************************************************/
@@ -288,7 +307,7 @@
                                   <td class="text-left"><?= $orderByAmount['product'];?></td>
                                   <td class="text-right"><?= $orderByAmount['amount']?></td>
                                   <td class="text-right"><?= $orderByAmount['price'];?></td>
-                                  <td class="text-right paid-row-sum"><?= $orderByAmount['paid'];?></td>
+                                  <td class="text-right paid-row-sum"><?= $orderByAmount['paid_row_sum'];?></td>
                                   <td class="text-center orderer <?= checkPaid($orderByAmount['paid'])?>" 
                                   data-paid="<?= $orderByAmount['paid'];?>"
                                   data-order-sn="<?= $orderByAmount['order_sn'];?>"
@@ -298,7 +317,7 @@
                                   data-sum="<?=$buyInfo['sum'];?>"
                                   data-price="<?= $orderByAmount['price'];?>"
                                   >
-                                    <?= $orderByAmount['orderer'];?>
+                                    <a href="javascript:void(0)"><?= $orderByAmount['orderer'];?></a>
                                   </td>
                                 
                               <?php
@@ -313,7 +332,7 @@
                                 data-sum="<?=$buyInfo['sum'];?>"
                                 data-price="<?= $orderByAmount['price'];?>"
                                 >
-                                  <?= $orderByAmount['orderer'];?>
+                                  <a href="javascript:void(0)"><?= $orderByAmount['orderer'];?></a>
                                 </td>
                               <?php
                                 }
@@ -351,7 +370,21 @@
                   </div>
                   <div id="collapse3" class="collapse" data-parent="#accordion">
                     <div class="card-body">
-                      Lorem ipsum..
+                      <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                          <thead>
+                            <tr>
+                              <th class="text-left">產品</th>
+                              <th class="text-right">數量</th>
+                              <th class="text-right">單價</th>
+                              <th class="text-right">已付數</th>
+                              <th class="text-center">顯示說明</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 </div>

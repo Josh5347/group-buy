@@ -1,28 +1,35 @@
 <?php require_once '../Classes/DbParm.php'; ?>
 <?php require_once '../Connections/connectionOO.php'; ?>
 <?php require_once '../Connections/function.php'; ?>
-<?php require_once '../Classes/Functions.php';?>
-<?php require_once '../Classes/OrderInfo.php';?>
+<?php require_once '../Classes/BuyInfo.php';?>
 
-<?php use Classes\Functions; ?>
-<?php use Classes\OrderInfo; ?>
+<?php use Classes\BuyInfo; ?>
+
 <?php
 
     function sqlQuery(){
-      global $connOO ,$result;
-      
-      if(OrderInfo::updatePaidByOrderSn(
-        $_REQUEST['buyId'],
-        $_REQUEST['orderId'],
-        $_REQUEST['orderSn'],
-        $_REQUEST['paid'])){
 
+      if (updateBuyInfo()){
+        return true;
+      }else{
+        return false;
+      }
+
+    }    
+
+    function updateBuyInfo(){
+
+      global $connOO, $result;
+
+      if(BuyInfo::updateTotalPaid(
+        $_REQUEST['buyId'],
+        $_REQUEST['totalPaid'])){
+        
         return true;
       }else{
         trigger_error(mysqli_error($connOO), E_USER_ERROR);
-      }        
-
-    }    
+      }      
+    }
 
     function outputJSON(){
 
