@@ -40,7 +40,7 @@
   }
 
   function getOrderInfoSortByAmount(){
-    global $connOO, $numOfProduct;
+    global $connOO, $numOfProduct, $resultOrderByAmount;
     $arrayOrders = [];
     $prevProduct = '';
 
@@ -75,7 +75,13 @@
     usort($arrayOrders, function($a, $b){
       if($a['product_no'] == $b['product_no']){
         if($a['amount'] == $b['amount']){
-          return 0;
+          if($a['orderer'] == $b['orderer']){
+            return 0;
+          }elseif($a['orderer'] > $b['orderer']){
+            return 1;
+          }else{
+            return -1;
+          }
         }elseif($a['amount'] > $b['amount']){
           return -1;
         }else{
@@ -104,6 +110,12 @@
     }
 
   }
+
+  function getOrderInfoShowExplanation(){
+    global $resultOrderByAmount;
+    $resultOrderByAmount->data_seek(0);
+
+  }
   /****************************************************/
   /*                    main                          */
   /****************************************************/
@@ -113,11 +125,13 @@
   $buyInfo = [];
   $ordersByAmount = '';
   $numOfProduct = 0; // 份數
+  $resultOrderByAmount;
 
   //取消
   if(isset($_REQUEST['buy_id'])){
     showInfo();
     $ordersByAmount = getOrderInfoSortByAmount();
+    $ordersExplan = getOrderInfoShowExplanation();
 
   }
 
@@ -315,7 +329,7 @@
                                   data-order-id="<?= $orderByAmount['order_id'];?>" 
                                   data-total-paid="<?= $buyInfo['total_paid'];?>" 
                                   data-sum="<?=$buyInfo['sum'];?>"
-                                  data-price="<?= $orderByAmount['price'];?>"
+                                  data-price="<?= $orderByAmount['price'];?>"  
                                   >
                                     <a href="javascript:void(0)"><?= $orderByAmount['orderer'];?></a>
                                   </td>
@@ -377,11 +391,44 @@
                               <th class="text-left">產品</th>
                               <th class="text-right">數量</th>
                               <th class="text-right">單價</th>
-                              <th class="text-right">已付數</th>
-                              <th class="text-center">顯示說明</th>
+                              <th class="text-left">說明</th>
                             </tr>
                           </thead>
                           <tbody>
+                          <?php 
+                            $prevProduct = '';
+                            $prevOrderer = '';
+                            foreach($ordersByAmount as $orderByAmount  ){
+
+                              if($prevProduct != $orderByAmount['product'] ){
+                                $prevProduct = $orderByAmount['product'];
+                            ?>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td class="text-left"><?= $orderByAmount['product'];?></td>
+                                  <td class="text-right"><?= $orderByAmount['amount']?></td>
+                                  <td class="text-right"><?= $orderByAmount['price'];?></td>
+                                  <td class="text-left">
+                                  <?php
+                                    if ($prevOrderer != $orderByAmount['orderer']){
+                                      $prevOrderer = $orderByAmount['orderer'];
+                                    }
+                                    //echo ($orderByAmount['explanation']!=null)?$orderByAmount['orderer'].':'. $orderByAmount['explanation']:''; 
+                                    echo '<br />'.$orderByAmount['orderer'].':'. $orderByAmount['explanation'];
+                              }else{
+                                /* 同一訂購人之同一產品，說明僅顯示一次 */
+                                /* if ($prevOrderer != $orderByAmount['orderer']){ */
+                                  $prevOrderer = $orderByAmount['orderer'];
+                                  echo '<br />'.$orderByAmount['orderer'].':'. $orderByAmount['explanation'];
+                                  //echo ($orderByAmount['explanation']!=null)? '<br />'. $orderByAmount['orderer'].':'. $orderByAmount['explanation']:'';
+                                /* } */
+                                
+                            
+                              }
+                            }
+                            ?>
+                            </tr>
                           </tbody>
                         </table>
                       </div>
