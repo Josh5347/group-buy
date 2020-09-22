@@ -19,6 +19,7 @@
     $resultStoreProduct = getStoreProduct($rowBuyInfo['store_no']);
     $rowStoreProduct = $resultStoreProduct->fetch_assoc();
 
+    // 將產品清單轉換成每一行每一行的陣列
     $arrayProducts = preg_split('/\r\n/',$rowStoreProduct['product_list']);
 
   }

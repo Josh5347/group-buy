@@ -57,6 +57,12 @@ $(function () {
 
   });
 
+  $('#editOrderModal').on('show.bs.modal', function (event) {
+    var myVal = $(event.relatedTarget).data('orderer');
+    console.log("myVal:"+myVal);
+    $(this).find("#orderer-modal-title").text(myVal);
+  });
+
   function updatePaidOfOrderInfo(buy_id, order_id, order_sn, paid){
       var dataInput = {
         buyId : buy_id,

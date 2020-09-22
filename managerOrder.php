@@ -113,8 +113,57 @@
 
   function getOrderInfoShowExplanation(){
     global $resultOrderByAmount;
-    $resultOrderByAmount->data_seek(0);
+    $arrayOrders = [];
+    $prevProduct = '';
 
+    $resultOrderByAmount->data_seek(0);
+        // 將資料庫內容送進陣列中
+    while( $row = $resultOrderByAmount->fetch_assoc()){
+      array_push($arrayOrders, $row);
+    }
+
+    // 以 product_no為key1 升冪 ,orderer為key2排序 升冪
+    usort($arrayOrders, function($a, $b){
+      if($a['product_no'] == $b['product_no']){
+        if($a['orderer'] == $b['orderer']){
+          return 0;
+        }elseif($a['orderer'] > $b['orderer']){
+          return 1;
+        }else{
+          return -1;
+        }
+      }else if($a['product_no'] > $b['product_no']){
+        return 1;
+      }else{
+        return -1;
+      }
+    });
+
+    return $arrayOrders;
+
+  }
+
+  function showOrder(){
+    global $buyInfo;
+
+    $resultStoreProduct = getStoreProduct($buyInfo['store_no']);
+    $rowStoreProduct = $resultStoreProduct->fetch_assoc();
+
+    // 將產品清單轉換成每一行每一行的陣列
+    $arrayProducts = preg_split('/\r\n/',$rowStoreProduct['product_list']);
+
+    return $arrayProducts;
+  }
+
+  function getStoreProduct($store_no){
+    global $connOO;
+
+    $result = StoreProduct::getOneByStoreNo($store_no);
+    if (!$result){
+      exit("查詢產品清單失敗 :" .$connOO->error);
+    }else{
+      return $result;
+    }
   }
   /****************************************************/
   /*                    main                          */
@@ -126,13 +175,16 @@
   $ordersByAmount = '';
   $numOfProduct = 0; // 份數
   $resultOrderByAmount;
+  $arrayProducts = [];
+  $i = 0;
+
 
   //取消
   if(isset($_REQUEST['buy_id'])){
     showInfo();
     $ordersByAmount = getOrderInfoSortByAmount();
     $ordersExplan = getOrderInfoShowExplanation();
-
+    $arrayProducts = showOrder();
   }
 
 ?>
@@ -289,7 +341,7 @@
           <div class="row">
             <div class="col-lg-12">
               <div id="accordion">
-
+<!-- 按件計算 -->
                 <div class="card">
                   <div class="card-header">
                     <a class="card-link" data-toggle="collapse" href="#collapse1">
@@ -376,6 +428,7 @@
                   </div>
                 </div>
 
+<!-- 老闆我要訂 -->
                 <div class="card">
                   <div class="card-header">
                     <a class="collapsed card-link" data-toggle="collapse" href="#collapse3">
@@ -414,14 +467,14 @@
                                     if ($prevOrderer != $orderByAmount['orderer']){
                                       $prevOrderer = $orderByAmount['orderer'];
                                     }
-                                    //echo ($orderByAmount['explanation']!=null)?$orderByAmount['orderer'].':'. $orderByAmount['explanation']:''; 
-                                    echo '<br />'.$orderByAmount['orderer'].':'. $orderByAmount['explanation'];
+                                    echo ($orderByAmount['explanation']!=null)? $orderByAmount['orderer'].':'. $orderByAmount['explanation']: null; 
+                                    // echo '<br />'.$orderByAmount['orderer'].':'. $orderByAmount['explanation'];
                               }else{
                                 /* 同一訂購人之同一產品，說明僅顯示一次 */
                                 /* if ($prevOrderer != $orderByAmount['orderer']){ */
                                   $prevOrderer = $orderByAmount['orderer'];
-                                  echo '<br />'.$orderByAmount['orderer'].':'. $orderByAmount['explanation'];
-                                  //echo ($orderByAmount['explanation']!=null)? '<br />'. $orderByAmount['orderer'].':'. $orderByAmount['explanation']:'';
+                                  // echo '<br />'.$orderByAmount['orderer'].':'. $orderByAmount['explanation'];
+                                  echo ($orderByAmount['explanation']!=null)? '<br />'. $orderByAmount['orderer'].':'. $orderByAmount['explanation']:'';
                                 /* } */
                                 
                             
@@ -435,7 +488,8 @@
                     </div>
                   </div>
                 </div>
-                
+
+<!-- 修改訂單 -->
                 <div class="card">
                   <div class="card-header">
                     <a class="collapsed card-link" data-toggle="collapse" href="#collapse4">
@@ -444,7 +498,56 @@
                   </div>
                   <div id="collapse4" class="collapse" data-parent="#accordion">
                     <div class="card-body">
-                      Lorem ipsum..
+                                            <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                          <thead>
+                            <tr>
+                              <th class="text-left">產品</th>
+                              <th class="text-right">數量</th>
+                              <th class="text-right">單價</th>
+                              <th class="text-center">選一個修改</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <?php 
+                            $prevProduct = '';
+                            foreach($ordersByAmount as $orderByAmount  ){
+                              if($prevProduct != $orderByAmount['product'] ){
+                                $prevProduct = $orderByAmount['product'];
+                            ?>
+                                </tr>
+                                <tr>
+                                  <td class="text-left"><?= $orderByAmount['product'];?></td>
+                                  <td class="text-right"><?= $orderByAmount['amount']?></td>
+                                  <td class="text-right"><?= $orderByAmount['price'];?></td>
+                                  <td class="text-center <?= checkPaid($orderByAmount['paid'])?>" >
+                                    <button type="button" class="btn btn-link btn-sm" data-orderer="<?= $orderByAmount['orderer'];?>"
+                                    data-toggle="modal" data-target="#editOrderModal">
+                                      <?= $orderByAmount['orderer'];?>
+                                    </button>
+                                  </td>
+                                
+                              <?php
+                                }else{                                 
+                              ?>
+                                <td class="text-center <?= checkPaid($orderByAmount['paid'])?>">
+                                  <button type="button" class="btn btn-link btn-sm" data-orderer="<?= $orderByAmount['orderer'];?>" 
+                                  data-toggle="modal" data-target="#editOrderModal">
+                                    <?= $orderByAmount['orderer'];?>
+                                  </button>
+
+                                </td>
+                              <?php
+                                }
+                              ?>
+                              
+                            <?php
+                            }
+                            ?>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -486,6 +589,114 @@
                       Lorem ipsum..
                     </div>
                   </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+          
+          <!-- The Modal -->
+          <div class="modal" id="editOrderModal">
+            <div class="modal-dialog">
+              <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title">改訂 <span id="orderer-modal-title"></span>  買的</h4>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                  <form method="post" action="<?= $_SERVER['PHP_SELF'].'?buy_id='.$_GET['buy_id'];?>" 
+                  class="user" >
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>名稱</th>
+                          <th>價錢</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+<?php
+  foreach( $arrayProducts as $rowProduct){
+    /* 產品清單為類別 */
+    if( '{' == substr($rowProduct, 0, 1)){
+      
+?>
+                        <tr>
+                          <td colspan="4" class="font-weight-bold text-primary">
+                            <!-- 去除類別的{}字元 -->
+                            <?= trim($rowProduct, "{}" );?>
+                          </td>
+                        </tr>
+<?php
+    }else{
+      $rowOthers = preg_split("/[,]+/", $rowProduct);
+        $i++; // 產品編號
+    ?>
+                        <tr>
+                          <!-- 陣列中取出array[0]為產品名 -->
+                          <td><?= $product = array_shift($rowOthers);?></td>
+                          <td data-product-no="<?=$i;?>">
+<?php
+      $j = 0;
+      foreach($rowOthers as $other){
+        //比對如 " 中杯 40"，比對成功增加一個radio
+        if(preg_match('/^(\s)*[(\x7f-\xff)a-zA-Z]+(\s)+[0-9]+/',$other)){
+          $j++;
+          $arrayOther = preg_split('/[\s]+/', $other);         
+          $arrayPrice = preg_grep('/[0-9]+/', $arrayOther );
+          $arraySubProduct = preg_grep('/[(\x7f-\xff)a-zA-Z]+/', $arrayOther );
+          // 取得商品細項的價格
+          $price = array_shift($arrayPrice);
+          // 取得商品細項的名稱
+          $subProduct = array_shift($arraySubProduct);
+          printf("<input type='radio' class='subPrice' name='product_no' value=%s   />&nbsp%s&nbsp&nbsp&nbsp",
+          $i.'-'.$j, $other );
+        }else{
+          echo $other;
+          printf("<input type='radio' name='product_no' value=%s ", );
+          printf("<input type='hidden' class='price' value='%s'", $other);
+        }
+      }
+?>
+                          </td>
+                          <!-- <td class="td_amount form-inline" data-product-no="<?=$i;?>">
+                            <input type="text" class="amount form-control" size="2" readonly />
+                            <button type="button" class="plus btn btn-secondary btn-sm ml-2">+</button>
+                            <button type="button" class="minus btn btn-secondary btn-sm ml-2">-</button>
+                            <input type="hidden" class="product" value="<?= $product;?>" />
+                            <input type="hidden" class="product-no" value="<?= $i;?>" />
+                          </td>
+                          <td>
+                            <input type="text" class="explain form-control"  />
+                          </td> -->
+                        </tr>
+<?php
+    }/* end if-else */
+  }/* end foreach */
+?>
+                      </tbody>                    
+                    </table>
+                    <div class="row">
+                      <div class="form-group col-md-4">
+                        <input type="text" name="explanation" class="form-control form-control-user" 
+                        placeholder="額外訂購說明" />
+                        <input type="hidden" name="product_count" value="<?= $i;?>" />
+                      </div>
+                      <div class="col-md-8">
+                          <button type="submit" name="create_order" class="btn btn-danger btn-user mr-3">改訂</button>
+                          <button type="button" class="btn btn-outline-danger btn-user" data-dismiss="modal" >取消</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                 
                 </div>
 
               </div>
