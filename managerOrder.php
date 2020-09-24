@@ -47,7 +47,7 @@
     $resultOrderByAmount = OrderInfo::getAllSortByAmount($_GET['buy_id']);
     if (!$resultOrderByAmount){
       exit("查詢訂單資訊失敗 :" .$connOO->error);
-    }else
+    }
 
     $i = 1;
     // 將資料庫內容送進陣列中
@@ -61,7 +61,7 @@
 
         $paidRowSum = 
           $row['paid_row_sum'] = 
-          getPaidRowSum($row['buy_id'], $row['product_no']);
+          getPaidRowSumByProductNo($row['buy_id'], $row['product_no']);
       }else{
         $i++;
         $row['amount'] = $i;
@@ -98,7 +98,7 @@
 
   }
 
-  function getPaidRowSum($buyId, $ProductNo){
+  function getPaidRowSumByProductNo($buyId, $ProductNo){
     global $connOO;
 
     $result = OrderInfo::getPaidByBuyIdByProduct($buyId, $ProductNo);
@@ -109,6 +109,64 @@
       return $result->num_rows;
     }
 
+  }
+
+  function getOrderInfoSortByOrderer(){
+    global $connOO;
+    $prevOrderer = '';
+    $arrayOrders = [];
+   
+    $resultOrderByOrderer = OrderInfo::getAllSortByOrderer($_GET['buy_id']);
+    if (!$resultOrderByOrderer){
+      exit("查詢訂單資訊失敗 :" .$connOO->error);
+    }
+    
+    // 將資料庫內容送進陣列中
+    while( $row = $resultOrderByOrderer->fetch_assoc()){
+
+      // 取得每一訂購人的已付金額
+      $row['paid_row_sum'] = 
+        getPaidRowSumByOrderer($row['buy_id'], $row['orderer']);
+      // 取得每一訂購人的總金額
+      $result =
+        getPriceRowSumByOrderer($row['buy_id'], $row['orderer']);
+      $row['price_row_sum'] = $result['price_sum'];
+      // 取得每一訂購人的未付金額
+      $row['unpaid_row_sum'] = $row['price_row_sum'] - $row['paid_row_sum'];
+      // 取得每一訂購人的數量
+      $row['amount'] = $result['price_amount'];
+      
+      array_push($arrayOrders, $row);
+    }
+
+    return $arrayOrders;
+
+  }
+
+  function getPaidRowSumByOrderer($buyId, $orderer){
+    global $connOO;
+
+    $result = OrderInfo::getPaidRowSumByOrderer($buyId, $orderer);
+    if (!$result){
+      exit("查詢團購資訊失敗 :" .$connOO->error);
+    }else{
+      // 傳回查詢陣列
+      $row = $result->fetch_assoc();
+      return (isset($row['paid_sum']))? $row['paid_sum']: 0;
+      
+    }
+  }
+
+  function getPriceRowSumByOrderer($buyId, $orderer){
+    global $connOO;
+
+    $result = OrderInfo::getPriceRowSumByOrderer($buyId, $orderer);
+    if (!$result){
+      exit("查詢團購資訊失敗 :" .$connOO->error);
+    }else{
+      // 傳回查詢陣列
+      return $result->fetch_assoc();
+    }
   }
 
   function getOrderInfoShowExplanation(){
@@ -165,6 +223,27 @@
       return $result;
     }
   }
+
+  function updateOrderInfo(){
+    global $connOO;
+
+    // 將輸入 以 ";" 分割
+    $arrayInput = preg_split('/[;]+/', $_REQUEST['product_info']);       
+
+    if(!OrderInfo::updatePriceProduct(
+      $_REQUEST['buy_id'],
+      $_REQUEST['order_id'],
+      $_REQUEST['order_sn'],
+      $arrayInput[0],
+      $arrayInput[1],
+      $arrayInput[2],
+      $_REQUEST['explanation']
+      )){
+      trigger_error(mysqli_error($connOO), E_USER_ERROR);
+    }    
+
+  }
+
   /****************************************************/
   /*                    main                          */
   /****************************************************/
@@ -174,7 +253,7 @@
   $buyInfo = [];
   $ordersByAmount = '';
   $numOfProduct = 0; // 份數
-  $resultOrderByAmount;
+  $resultOrderByAmount; //全域變數
   $arrayProducts = [];
   $i = 0;
 
@@ -182,9 +261,14 @@
   //取消
   if(isset($_REQUEST['buy_id'])){
     showInfo();
-    $ordersByAmount = getOrderInfoSortByAmount();
-    $ordersExplan = getOrderInfoShowExplanation();
-    $arrayProducts = showOrder();
+    $ordersByAmount = getOrderInfoSortByAmount();// 按件計算
+    $ordersByOrderer = getOrderInfoSortByOrderer(); // 按人計算
+    $ordersExplan = getOrderInfoShowExplanation();// 老闆我要訂
+    $arrayProducts = showOrder();// 修改訂單
+  }
+
+  if(isset($_REQUEST['update'])){
+    updateOrderInfo();
   }
 
 ?>
@@ -423,7 +507,71 @@
                   </div>
                   <div id="collapse2" class="collapse" data-parent="#accordion">
                     <div class="card-body">
-                      Lorem ipsum..
+                      <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                          <thead>
+                            <tr>
+                              <th class="text-left">訂購人</th>
+                              <th class="text-right">數量</th>
+                              <th class="text-right">已付</th>
+                              <th class="text-right">還剩</th>
+                              <th class="text-right">總共</th>
+                              <th class="text-center">顯示說明</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <?php 
+                            $prevOrderer = '';
+                            foreach($ordersByOrderer as $orderByOrderer  ){
+                              if($prevOrderer != $orderByOrderer['orderer'] ){
+                                $prevOrderer = $orderByOrderer['orderer'];
+                            ?>
+                                </tr>
+                                <tr>
+                                  <td class="text-left"><?= $orderByOrderer['orderer'];?></td>
+                                  <td class="text-right"><?= $orderByOrderer['amount']?></td>
+                                  <td class="text-right paid-row-sum"><?= $orderByOrderer['paid_row_sum'];?></td>
+                                  <td class="text-right"><?= $orderByOrderer['unpaid_row_sum'];?></td>
+                                  <td class="text-right"><?= $orderByOrderer['price_row_sum'];?></td>
+                                  <td class="text-right"><?= $orderByOrderer['paid_row_sum'];?></td>
+                                  <td class="text-center orderer <?= checkPaid($orderByOrderer['paid'])?>" 
+                                  data-paid="<?= $orderByOrderer['paid'];?>"
+                                  data-order-sn="<?= $orderByOrderer['order_sn'];?>"
+                                  data-buy-id="<?= $buyInfo['buy_id'];?>" 
+                                  data-order-id="<?= $orderByOrderer['order_id'];?>" 
+                                  data-total-paid="<?= $buyInfo['total_paid'];?>" 
+                                  data-sum="<?=$buyInfo['sum'];?>"
+                                  data-price="<?= $orderByOrderer['price'];?>"  
+                                  >
+                                    <a href="javascript:void(0)"><?= $orderByOrderer['product'];?></a>
+                                  </td>
+                                
+                              <?php
+                                }else{                                 
+                              ?>
+                                <td class="text-center orderer <?= checkPaid($orderByOrderer['paid'])?>"
+                                data-paid="<?= $orderByOrderer['paid'];?>"
+                                data-order-sn="<?= $orderByOrderer['order_sn'];?>"
+                                data-buy-id="<?= $buyInfo['buy_id'];?>" 
+                                data-order-id="<?= $orderByOrderer['order_id'];?>" 
+                                data-total-paid="<?= $buyInfo['total_paid'];?>" 
+                                data-sum="<?=$buyInfo['sum'];?>"
+                                data-price="<?= $orderByOrderer['price'];?>"
+                                >
+                                  <a href="javascript:void(0)"><?= $orderByOrderer['product'];?></a>
+                                </td>
+                              <?php
+                                }
+                              ?>
+                              
+                            <?php
+                            }
+                            ?>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      
                     </div>
                   </div>
                 </div>
@@ -521,7 +669,12 @@
                                   <td class="text-right"><?= $orderByAmount['amount']?></td>
                                   <td class="text-right"><?= $orderByAmount['price'];?></td>
                                   <td class="text-center <?= checkPaid($orderByAmount['paid'])?>" >
-                                    <button type="button" class="btn btn-link btn-sm" data-orderer="<?= $orderByAmount['orderer'];?>"
+                                    <button type="button" class="btn btn-link btn-sm"
+                                    data-orderer="<?= $orderByAmount['orderer'];?>"
+                                    data-buy-id="<?= $orderByAmount['buy_id'];?>"
+                                    data-order-id="<?= $orderByAmount['order_id'];?>"
+                                    data-order-sn="<?= $orderByAmount['order_sn'];?>"
+                                    data-product-no="<?= $orderByAmount['product_no'];?>"
                                     data-toggle="modal" data-target="#editOrderModal">
                                       <?= $orderByAmount['orderer'];?>
                                     </button>
@@ -531,7 +684,12 @@
                                 }else{                                 
                               ?>
                                 <td class="text-center <?= checkPaid($orderByAmount['paid'])?>">
-                                  <button type="button" class="btn btn-link btn-sm" data-orderer="<?= $orderByAmount['orderer'];?>" 
+                                  <button type="button" class="btn btn-link btn-sm" 
+                                  data-orderer="<?= $orderByAmount['orderer'];?>" 
+                                  data-buy-id="<?= $orderByAmount['buy_id'];?>"
+                                  data-order-id="<?= $orderByAmount['order_id'];?>"
+                                  data-order-sn="<?= $orderByAmount['order_sn'];?>"  
+                                  data-product-no="<?= $orderByAmount['product_no'];?>"
                                   data-toggle="modal" data-target="#editOrderModal">
                                     <?= $orderByAmount['orderer'];?>
                                   </button>
@@ -595,6 +753,7 @@
             </div>
           </div>
           
+<!-- 改訂Modal -->
           <!-- The Modal -->
           <div class="modal" id="editOrderModal">
             <div class="modal-dialog">
@@ -653,26 +812,21 @@
           $price = array_shift($arrayPrice);
           // 取得商品細項的名稱
           $subProduct = array_shift($arraySubProduct);
-          printf("<input type='radio' class='subPrice' name='product_no' value=%s   />&nbsp%s&nbsp&nbsp&nbsp",
-          $i.'-'.$j, $other );
+          // 輸入資料為 "產品名稱;產品編號;價格"
+          printf("<input type='radio' id=%s name='product_info' value=%s />&nbsp%s&nbsp&nbsp&nbsp",
+          $i.'-'.$j, $product.':'.$subProduct.';'.$i.'-'.$j.';'.$price, $other );
         }else{
-          echo $other;
-          printf("<input type='radio' name='product_no' value=%s ", );
-          printf("<input type='hidden' class='price' value='%s'", $other);
+          $other = str_replace(' ', '', $other);
+          // 輸入資料為 "產品名稱;產品編號;價格"
+          printf("<input type='radio' id=%s name='product_info' value=%s />&nbsp%s&nbsp&nbsp&nbsp",
+          $i ,$product.';'.$i.';'.$other ,$other );
         }
       }
+
 ?>
+
                           </td>
-                          <!-- <td class="td_amount form-inline" data-product-no="<?=$i;?>">
-                            <input type="text" class="amount form-control" size="2" readonly />
-                            <button type="button" class="plus btn btn-secondary btn-sm ml-2">+</button>
-                            <button type="button" class="minus btn btn-secondary btn-sm ml-2">-</button>
-                            <input type="hidden" class="product" value="<?= $product;?>" />
-                            <input type="hidden" class="product-no" value="<?= $i;?>" />
-                          </td>
-                          <td>
-                            <input type="text" class="explain form-control"  />
-                          </td> -->
+                          
                         </tr>
 <?php
     }/* end if-else */
@@ -684,12 +838,15 @@
                       <div class="form-group col-md-4">
                         <input type="text" name="explanation" class="form-control form-control-user" 
                         placeholder="額外訂購說明" />
-                        <input type="hidden" name="product_count" value="<?= $i;?>" />
                       </div>
                       <div class="col-md-8">
                           <button type="submit" name="create_order" class="btn btn-danger btn-user mr-3">改訂</button>
                           <button type="button" class="btn btn-outline-danger btn-user" data-dismiss="modal" >取消</button>
                       </div>
+                      <input type='hidden' name='buy_id' id='buy_id' />
+                      <input type='hidden' name='order_id' id='order_id' />
+                      <input type='hidden' name='order_sn' id='order_sn' />
+                      <input type='hidden' name='update' />
                     </div>
                   </form>
                 </div>

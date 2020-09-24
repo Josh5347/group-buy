@@ -57,10 +57,28 @@ $(function () {
 
   });
 
+  /* 修改訂單中，若選擇改訂項目，傳送資料至改訂Modal中 */
   $('#editOrderModal').on('show.bs.modal', function (event) {
-    var myVal = $(event.relatedTarget).data('orderer');
-    console.log("myVal:"+myVal);
-    $(this).find("#orderer-modal-title").text(myVal);
+
+    var titleVal = $(event.relatedTarget).data('orderer');
+    // 欲修改項目的buy_id
+    var buy_id =  $(event.relatedTarget).data('buy-id');
+    // 欲修改項目的order_id
+    var order_id = $(event.relatedTarget).data('order-id');
+    // 欲修改項目的order_sn
+    var order_sn =  $(event.relatedTarget).data('order-sn');
+    // 欲修改項目的product_no
+    var product_no =  $(event.relatedTarget).data('product-no');
+
+    //console.log("product_no:"+product_no);
+    $(this).find("#orderer-modal-title").text(titleVal);
+    // input type=hidden之值
+    $(this).find("#buy_id").val(buy_id);
+    $(this).find("#order_id").val(order_id);
+    $(this).find("#order_sn").val(order_sn);
+    // 欲修改項目原本之產品所屬的radio設定為checked
+    $(this).find('#'+product_no).prop("checked", true);
+
   });
 
   function updatePaidOfOrderInfo(buy_id, order_id, order_sn, paid){
