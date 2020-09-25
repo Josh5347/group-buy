@@ -257,8 +257,10 @@
   $arrayProducts = [];
   $i = 0;
 
+  if(isset($_REQUEST['update'])){
+    updateOrderInfo();
+  }
 
-  //取消
   if(isset($_REQUEST['buy_id'])){
     showInfo();
     $ordersByAmount = getOrderInfoSortByAmount();// 按件計算
@@ -267,9 +269,6 @@
     $arrayProducts = showOrder();// 修改訂單
   }
 
-  if(isset($_REQUEST['update'])){
-    updateOrderInfo();
-  }
 
 ?>
 
@@ -533,7 +532,6 @@
                                   <td class="text-right paid-row-sum"><?= $orderByOrderer['paid_row_sum'];?></td>
                                   <td class="text-right"><?= $orderByOrderer['unpaid_row_sum'];?></td>
                                   <td class="text-right"><?= $orderByOrderer['price_row_sum'];?></td>
-                                  <td class="text-right"><?= $orderByOrderer['paid_row_sum'];?></td>
                                   <td class="text-center orderer <?= checkPaid($orderByOrderer['paid'])?>" 
                                   data-paid="<?= $orderByOrderer['paid'];?>"
                                   data-order-sn="<?= $orderByOrderer['order_sn'];?>"
@@ -646,14 +644,14 @@
                   </div>
                   <div id="collapse4" class="collapse" data-parent="#accordion">
                     <div class="card-body">
-                                            <div class="table-responsive">
+                      <div class="table-responsive">
                         <table class="table table-bordered table-sm">
                           <thead>
                             <tr>
                               <th class="text-left">產品</th>
                               <th class="text-right">數量</th>
                               <th class="text-right">單價</th>
-                              <th class="text-center">選一個修改</th>
+                              <th class="text-center">選一個刪除</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -712,13 +710,74 @@
 
                 <div class="card">
                   <div class="card-header">
-                    <a class="collapsed card-link" data-toggle="collapse" href="#collapse5">
+                    <a class="card-link" data-toggle="collapse" href="#collapse5">
                       刪除模式
                     </a>
                   </div>
                   <div id="collapse5" class="collapse" data-parent="#accordion">
                     <div class="card-body">
-                      Lorem ipsum..
+                      <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                          <thead>
+                            <tr>
+                              <th class="text-left">產品</th>
+                              <th class="text-right">數量</th>
+                              <th class="text-right">單價</th>
+                              <th class="text-center">選一個刪除</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <?php 
+                            $prevProduct = '';
+                            foreach($ordersByAmount as $orderByAmount  ){
+                              if($prevProduct != $orderByAmount['product'] ){
+                                $prevProduct = $orderByAmount['product'];
+                            ?>
+                                </tr>
+                                <tr>
+                                  <td class="text-left"><?= $orderByAmount['product'];?></td>
+                                  <td class="text-right"><?= $orderByAmount['amount']?></td>
+                                  <td class="text-right"><?= $orderByAmount['price'];?></td>
+                                  <td class="text-center <?= checkPaid($orderByAmount['paid'])?>" >
+                                    <form method="post" action="<?= $_SERVER['PHP_SELF'];?>" >
+                                      <button type="button" class="btn btn-link btn-sm btn-delete" >
+                                        <?= $orderByAmount['orderer'];?>
+                                      </button>
+                                      <input type="hidden" name="delete" />
+                                      <input type="hidden" name="buy_id" value="<?= $orderByAmount['buy_id'];?>" />
+                                      <input type="hidden" name="order_id" value="<?= $orderByAmount['order_id'];?>" />
+                                      <input type="hidden" name="order_sn" value="<?= $orderByAmount['order_sn'];?>" />
+
+                                    </form>
+                                  </td>
+                                
+                              <?php
+                                }else{                                 
+                              ?>
+                                <td class="text-center <?= checkPaid($orderByAmount['paid'])?>">
+                                  <form method="post" action="<?= $_SERVER['PHP_SELF'].'?buy_id='.$_GET['buy_id'];?>" >
+                                    <button type="button" class="btn btn-link btn-sm btn-delete" >
+                                      <?= $orderByAmount['orderer'];?>
+                                    </button>
+                                    <input type="hidden" name="delete" />
+                                    <input type="hidden" name="buy_id" value="<?= $orderByAmount['buy_id'];?>" />
+                                    <input type="hidden" name="order_id" value="<?= $orderByAmount['order_id'];?>" />
+                                    <input type="hidden" name="order_sn" value="<?= $orderByAmount['order_sn'];?>" />
+
+                                  </form>
+                                </td>
+                              <?php
+                                }
+                              ?>
+                              
+                            <?php
+                            }
+                            ?>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
                     </div>
                   </div>
                 </div>
@@ -859,6 +918,8 @@
               </div>
             </div>
           </div>
+
+<!-- 刪除modal -->
 
         </div>
         <!-- /.container-fluid -->

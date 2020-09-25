@@ -81,6 +81,13 @@ $(function () {
 
   });
 
+  /* 刪除模式 */
+  $('.btn-delete').click(function () {
+    if(confirm("確定要刪除嗎?")){
+      $(this).parent().submit();
+    }
+  });
+
   function updatePaidOfOrderInfo(buy_id, order_id, order_sn, paid){
       var dataInput = {
         buyId : buy_id,
