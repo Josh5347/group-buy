@@ -88,6 +88,12 @@ $(function () {
     }
   });
 
+  /* 出貨狀態 */
+  $('#collapse6').click(function () {
+    $('#shipping').submit();
+  })
+
+
   function updatePaidOfOrderInfo(buy_id, order_id, order_sn, paid){
       var dataInput = {
         buyId : buy_id,
@@ -130,3 +136,7 @@ $(function () {
     });// end of ajax
   }
 });
+
+function ScrollToBottom() {
+  window.scrollTo(0,document.querySelector(".scrollingContainer").scrollHeight);  
+}

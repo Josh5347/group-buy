@@ -244,6 +244,56 @@
 
   }
 
+  function deleteOrderInfo(){
+    global $connOO;
+
+    if(!OrderInfo::deleteOrderInfo(
+      $_REQUEST['buy_id'],
+      $_REQUEST['order_id'],
+      $_REQUEST['order_sn']
+      )){
+      trigger_error(mysqli_error($connOO), E_USER_ERROR);
+    }    
+
+
+  }
+
+  function showCollapse($collapseName){
+    global $showAmount, $showUpdate, $showDelete, $showShipping;
+    switch ($collapseName) {
+      case 'update':
+        $showAmount = '';
+        $showUpdate = 'show';
+        $showDelete = '';      
+        $showShipping = '';      
+        break;
+      case 'delete':
+        $showAmount = '';
+        $showUpdate = '';
+        $showDelete = ' show';      
+        $showShipping = '';      
+        break;
+      
+      case 'shipping':
+        $showAmount = '';
+        $showUpdate = '';
+        $showDelete = '';      
+        $showShipping = ' show';      
+        break;
+      
+      case 'default':
+        $showAmount = ' show';
+        $showUpdate = '';
+        $showDelete = '';      
+        $showShipping = '';      
+        break;
+      
+      
+      default:
+        # code...
+        break;
+    }
+  }
   /****************************************************/
   /*                    main                          */
   /****************************************************/
@@ -255,10 +305,24 @@
   $numOfProduct = 0; // 份數
   $resultOrderByAmount; //全域變數
   $arrayProducts = [];
+  $toShipping = false;
   $i = 0;
+  showCollapse('default');
 
   if(isset($_REQUEST['update'])){
     updateOrderInfo();
+    showCollapse('update');
+  
+  }
+
+  if(isset($_REQUEST['shipping'])){
+    showCollapse('shipping');
+    $toShipping = true;
+  }
+
+  if(isset($_REQUEST['delete'])){
+    deleteOrderInfo();
+    showCollapse('delete');
   }
 
   if(isset($_REQUEST['buy_id'])){
@@ -278,6 +342,7 @@
   <link href="css/style.css" rel="stylesheet">
   <link href="css/managerOrder.css" rel="stylesheet">
   <script src="js/managerOrder.js"></script>
+  
 </head>
 
 <body id="page-top">
@@ -403,7 +468,7 @@
               <!-- Project Card Example -->
               <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                  <h6 class="m-0 font-weight-bold text-primary">小筆記</h6>
+                  <h6 class="m-0 font-weight-bold text-primary"><div onclick="ScrollToBottom()"> 小筆記</div></h6>
                 </div>
                 <div class="card-body">
                   <div class="form-group">
@@ -431,7 +496,7 @@
                       按件計算
                     </a>
                   </div>
-                  <div id="collapse1" class="collapse show" data-parent="#accordion">
+                  <div id="collapse1" class="collapse <?= $showAmount;?>" data-parent="#accordion">
                     <div class="card-body">
                       <div class="table-responsive">
                         <table class="table table-bordered table-sm">
@@ -497,7 +562,7 @@
                     </div>
                   </div>
                 </div>
-
+<!-- 按人計算 -->
                 <div class="card">
                   <div class="card-header">
                     <a class="collapsed card-link" data-toggle="collapse" href="#collapse2">
@@ -642,7 +707,7 @@
                       修改訂單
                     </a>
                   </div>
-                  <div id="collapse4" class="collapse" data-parent="#accordion">
+                  <div id="collapse4" class="collapse <?= $showUpdate;?>" data-parent="#accordion">
                     <div class="card-body">
                       <div class="table-responsive">
                         <table class="table table-bordered table-sm">
@@ -708,13 +773,14 @@
                   </div>
                 </div>
 
+<!-- 刪除模式 -->
                 <div class="card">
                   <div class="card-header">
                     <a class="card-link" data-toggle="collapse" href="#collapse5">
                       刪除模式
                     </a>
                   </div>
-                  <div id="collapse5" class="collapse" data-parent="#accordion">
+                  <div id="collapse5" class="collapse <?= $showDelete;?>" data-parent="#accordion">
                     <div class="card-body">
                       <div class="table-responsive">
                         <table class="table table-bordered table-sm">
@@ -723,7 +789,7 @@
                               <th class="text-left">產品</th>
                               <th class="text-right">數量</th>
                               <th class="text-right">單價</th>
-                              <th class="text-center">選一個刪除</th>
+                              <th class="text-center">選一個修改</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -739,7 +805,7 @@
                                   <td class="text-right"><?= $orderByAmount['amount']?></td>
                                   <td class="text-right"><?= $orderByAmount['price'];?></td>
                                   <td class="text-center <?= checkPaid($orderByAmount['paid'])?>" >
-                                    <form method="post" action="<?= $_SERVER['PHP_SELF'];?>" >
+                                    <form method="post" action="<?= $_SERVER['PHP_SELF'].'?buy_id='.$_GET['buy_id'];?>" >
                                       <button type="button" class="btn btn-link btn-sm btn-delete" >
                                         <?= $orderByAmount['orderer'];?>
                                       </button>
@@ -782,15 +848,81 @@
                   </div>
                 </div>
 
+<!-- 出貨狀態 -->                
                 <div class="card">
                   <div class="card-header">
-                    <a class="collapsed card-link" data-toggle="collapse" href="#collapse6">
+                    <a class="collapsed card-link" id="collapse6" data-toggle="collapse" href="#collapse6">
                       出貨狀態
                     </a>
                   </div>
-                  <div id="collapse6" class="collapse" data-parent="#accordion">
+                  <div id="collapse6" class="collapse <?= $showShipping;?>" data-parent="#accordion">
                     <div class="card-body">
-                      Lorem ipsum..
+                      <div class="table-responsive">
+                        <form id="shipping" method="post" action="<?= $_SERVER['PHP_SELF'].'?buy_id='.$_GET['buy_id'];?>" >
+                          <input type="hidden" name="shipping" />
+                        </form>
+                        <table class="table table-bordered table-sm">
+                          <thead>
+                            <tr>
+                              <th class="text-left">訂購人</th>
+                              <th class="text-right">數量</th>
+                              <th class="text-right">付款</th>
+                              <th class="text-right">還剩</th>
+                              <th class="text-right">總共</th>
+                              <th class="text-center">顯示說明</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <?php 
+                            $prevOrderer = '';
+                            foreach($ordersByOrderer as $orderByOrderer  ){
+                              if($prevOrderer != $orderByOrderer['orderer'] ){
+                                $prevOrderer = $orderByOrderer['orderer'];
+                            ?>
+                                </tr>
+                                <tr>
+                                  <td class="text-left"><?= $orderByOrderer['orderer'];?></td>
+                                  <td class="text-right"><?= $orderByOrderer['amount']?></td>
+                                  <td class="text-right paid-row-sum"><?= $orderByOrderer['paid_row_sum'];?></td>
+                                  <td class="text-right"><?= $orderByOrderer['unpaid_row_sum'];?></td>
+                                  <td class="text-right"><?= $orderByOrderer['price_row_sum'];?></td>
+                                  <td class="text-center orderer <?= checkPaid($orderByOrderer['paid'])?>" 
+                                  data-paid="<?= $orderByOrderer['paid'];?>"
+                                  data-order-sn="<?= $orderByOrderer['order_sn'];?>"
+                                  data-buy-id="<?= $buyInfo['buy_id'];?>" 
+                                  data-order-id="<?= $orderByOrderer['order_id'];?>" 
+                                  data-total-paid="<?= $buyInfo['total_paid'];?>" 
+                                  data-sum="<?=$buyInfo['sum'];?>"
+                                  data-price="<?= $orderByOrderer['price'];?>"  
+                                  >
+                                    <a href="javascript:void(0)"><?= $orderByOrderer['product'];?></a>
+                                  </td>
+                                
+                              <?php
+                                }else{                                 
+                              ?>
+                                <td class="text-center orderer <?= checkPaid($orderByOrderer['paid'])?>"
+                                data-paid="<?= $orderByOrderer['paid'];?>"
+                                data-order-sn="<?= $orderByOrderer['order_sn'];?>"
+                                data-buy-id="<?= $buyInfo['buy_id'];?>" 
+                                data-order-id="<?= $orderByOrderer['order_id'];?>" 
+                                data-total-paid="<?= $buyInfo['total_paid'];?>" 
+                                data-sum="<?=$buyInfo['sum'];?>"
+                                data-price="<?= $orderByOrderer['price'];?>"
+                                >
+                                  <a href="javascript:void(0)"><?= $orderByOrderer['product'];?></a>
+                                </td>
+                              <?php
+                                }
+                              ?>
+                              
+                            <?php
+                            }
+                            ?>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -931,8 +1063,10 @@
 <?php require_once 'common/htmlFooter.php'; ?>
 
 
-
-
 </body>
-
 </html>
+<?php
+/* 當按下出貨狀態時，將錨點指向出貨狀態表格 */
+if($toShipping){
+  echo '<script>window.location.hash="#collapse6";</script>';
+}

@@ -66,6 +66,21 @@
       return $result;
     }
 
+    public static function deleteOrderInfo($buyId, $orderId, $orderSn){
+    
+      global $connOO;
+
+      $query = sprintf("DELETE FROM order_info 
+      WHERE `buy_id` = %d AND `order_id` = %d AND `order_sn` = %d",
+      GetSQLValue((int)$buyId, "int"),
+      GetSQLValue((int)$orderId, "int"),
+      GetSQLValue((int)$orderSn, "int")
+      );  
+
+      $result = mysqli_query($connOO, $query);
+      return $result;
+    }
+
     public static function getPaidByBuyIdByProduct($buyId, $ProductNo){
 
       global $connOO;
