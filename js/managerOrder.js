@@ -89,10 +89,42 @@ $(function () {
   });
 
   /* 出貨狀態 */
+  // 當按下出貨狀態時，重新整理頁面，以獲得最新資料庫資料
   $('#collapse6').click(function () {
     $('#shipping').submit();
   })
 
+  // 按下出貨日期，更新出貨日期
+  $('.shipping').click(function () {
+    var shippingDate = $(this).data("shipping-date");
+    var buy_id = $(this).data("buy-id");
+    var order_id = $(this).data("order-id");
+    var order_sn = $(this).data("order-sn");
+    var date = new Date();
+    var months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+    var today = date.getFullYear() + '-' + months[date.getMonth()] + '-' + date.getDate();
+    // console.log("shippingDate:"+shippingDate);
+    // console.log("today:"+today);
+    if(shippingDate == ''){
+      // 更新出貨日為今日
+      updateShippingDate(buy_id, order_id, order_sn, 1);
+      $(this).data("shipping-date", today);
+      $(this).find(".shipping-date").text(today);
+    }else{
+      // 更新出貨日為空白
+      updateShippingDate(buy_id, order_id, order_sn, 0);
+      $(this).data("shipping-date", "");
+      $(this).find(".shipping-date").text("");
+    }
+  });
+
+  /* 批次出貨 */
+  $('.batch-shipping').click(function () {
+    $(this).parent().find('.shipping').each(function () {
+      $(this).click();
+      // console.log( $(this).data("shipping-date"));
+    })
+  });
 
   function updatePaidOfOrderInfo(buy_id, order_id, order_sn, paid){
       var dataInput = {
@@ -129,6 +161,29 @@ $(function () {
         dataType: 'JSON',
         success: function(data) {
             console.log(data);
+            
+        }// end of success
+
+
+    });// end of ajax
+  }
+
+  function updateShippingDate(buy_id, order_id, order_sn, flag){
+    var dataInput = {
+      buyId : buy_id,
+      orderId : order_id,
+      orderSn : order_sn,
+      updateFlag : flag
+    };
+    // console.log("flag:"+flag);
+    $.ajax({
+        url: 'ajax/updateShippingDate.php',
+        data: dataInput,
+        type: 'POST',
+        dataType: 'JSON',
+        success: function(data) {
+            console.log(data);
+          
             
         }// end of success
 

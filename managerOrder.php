@@ -135,7 +135,9 @@
       $row['unpaid_row_sum'] = $row['price_row_sum'] - $row['paid_row_sum'];
       // 取得每一訂購人的數量
       $row['amount'] = $result['price_amount'];
-      
+      // 付清
+      $row['paid_all'] = ($row['price_row_sum']==$row['paid_row_sum'])? "付清": "";
+
       array_push($arrayOrders, $row);
     }
 
@@ -851,7 +853,8 @@
 <!-- 出貨狀態 -->                
                 <div class="card">
                   <div class="card-header">
-                    <a class="collapsed card-link" id="collapse6" data-toggle="collapse" href="#collapse6">
+                    <!-- 使超連結失效 -->
+                    <a class="collapsed card-link" id="collapse6" data-toggle="collapse" href="####">
                       出貨狀態
                     </a>
                   </div>
@@ -867,9 +870,8 @@
                               <th class="text-left">訂購人</th>
                               <th class="text-right">數量</th>
                               <th class="text-right">付款</th>
-                              <th class="text-right">還剩</th>
-                              <th class="text-right">總共</th>
-                              <th class="text-center">顯示說明</th>
+                              <th class="text-center">批次</th>
+                              <th class="text-center">出貨日期</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -883,34 +885,45 @@
                                 <tr>
                                   <td class="text-left"><?= $orderByOrderer['orderer'];?></td>
                                   <td class="text-right"><?= $orderByOrderer['amount']?></td>
-                                  <td class="text-right paid-row-sum"><?= $orderByOrderer['paid_row_sum'];?></td>
-                                  <td class="text-right"><?= $orderByOrderer['unpaid_row_sum'];?></td>
-                                  <td class="text-right"><?= $orderByOrderer['price_row_sum'];?></td>
-                                  <td class="text-center orderer <?= checkPaid($orderByOrderer['paid'])?>" 
+                                  <td class="text-right"><?= $orderByOrderer['paid_all'];?></td>
+                                  <td class="text-right batch-shipping">
+                                    <a href="####">出貨 >></a>
+                                  </td>
+                                  <td class="text-center shipping <?= checkPaid($orderByOrderer['paid'])?>" 
                                   data-paid="<?= $orderByOrderer['paid'];?>"
                                   data-order-sn="<?= $orderByOrderer['order_sn'];?>"
                                   data-buy-id="<?= $buyInfo['buy_id'];?>" 
                                   data-order-id="<?= $orderByOrderer['order_id'];?>" 
                                   data-total-paid="<?= $buyInfo['total_paid'];?>" 
                                   data-sum="<?=$buyInfo['sum'];?>"
-                                  data-price="<?= $orderByOrderer['price'];?>"  
+                                  data-shipping-date="<?= $orderByOrderer['shipping_date'];?>"  
                                   >
-                                    <a href="javascript:void(0)"><?= $orderByOrderer['product'];?></a>
+                                    <a href="javascript:void(0)">
+                                      <?= $orderByOrderer['product'];?><br />
+                                      <span class="shipping-date">
+                                        <?= $orderByOrderer['shipping_date'];?>
+                                      </span>
+                                    </a>
                                   </td>
                                 
                               <?php
                                 }else{                                 
                               ?>
-                                <td class="text-center orderer <?= checkPaid($orderByOrderer['paid'])?>"
+                                <td class="text-center shipping <?= checkPaid($orderByOrderer['paid'])?>"
                                 data-paid="<?= $orderByOrderer['paid'];?>"
                                 data-order-sn="<?= $orderByOrderer['order_sn'];?>"
                                 data-buy-id="<?= $buyInfo['buy_id'];?>" 
                                 data-order-id="<?= $orderByOrderer['order_id'];?>" 
                                 data-total-paid="<?= $buyInfo['total_paid'];?>" 
                                 data-sum="<?=$buyInfo['sum'];?>"
-                                data-price="<?= $orderByOrderer['price'];?>"
+                                data-shipping-date="<?= $orderByOrderer['shipping_date'];?>"  
                                 >
-                                  <a href="javascript:void(0)"><?= $orderByOrderer['product'];?></a>
+                                  <a href="javascript:void(0)">
+                                    <?= $orderByOrderer['product'];?><br />
+                                    <span class="shipping-date">
+                                      <?= $orderByOrderer['shipping_date'];?>
+                                    </span>
+                                  </a>
                                 </td>
                               <?php
                                 }

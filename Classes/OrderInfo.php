@@ -66,6 +66,23 @@
       return $result;
     }
 
+    public static function updateShippingDate( $buyId, $orderId, $orderSn, $shippingDate){
+    
+      global $connOO;
+
+      $query = sprintf("UPDATE order_info 
+      SET `shipping_date` = %s 
+      WHERE `buy_id` = %d AND `order_id` = %d AND `order_sn` = %d",
+      GetSQLValue($shippingDate, "text"),
+      GetSQLValue((int)$buyId, "int"),
+      GetSQLValue((int)$orderId, "int"),
+      GetSQLValue((int)$orderSn, "int")
+      );
+
+      $result = mysqli_query($connOO, $query);
+      return $result;
+    }
+
     public static function deleteOrderInfo($buyId, $orderId, $orderSn){
     
       global $connOO;
