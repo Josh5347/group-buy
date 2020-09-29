@@ -11,7 +11,7 @@
     
       global $connOO;
   
-      $query = sprintf("SELECT buy_info.*, store.store_name FROM buy_info INNER JOIN store ON buy_info.store_no = store.store_no
+      $query = sprintf("SELECT buy_info.*, store.store_name, store.store_tel FROM buy_info INNER JOIN store ON buy_info.store_no = store.store_no
       WHERE `buy_id` = %s", 
       GetSQLValue($buy_id, "text"));
   

@@ -83,7 +83,11 @@
                     <div class="col mr-2">
                       <button type="button" class="btn btn-info btn-sm float-left mr-2"><?= $rowBuyInfo['amount'];?>人<br /><?=$rowBuyInfo['sum'];?>元</button>
                       <div class="text-sm font-weight-bold text-gray-800 text-uppercase text-break"><?= $rowBuyInfo['in_charge_name'];?>發起的</div>
-                      <a href="/processStore.php?store_no=<?= $rowBuyInfo['store_no'];?>"><div class="h5 font-weight-bold text-info text-break"><?=$rowBuyInfo['store_name']; ?></div></a>
+                        <a href="/viewOrder.php?buy_id=<?= $rowBuyInfo['buy_id'];?>">
+                          <div class="h5 font-weight-bold text-info text-break" title="查看訂單明細">
+                            <?=$rowBuyInfo['store_name']; ?>
+                          </div>
+                        </a>
                     </div>
                     <div class="col-auto">
                       <button type="button" class="btn btn-danger" onclick="location.href='/addOrder.php?buy_id=<?= $rowBuyInfo['buy_id'];?>'">訂購</button><br />

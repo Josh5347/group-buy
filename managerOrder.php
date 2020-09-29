@@ -367,7 +367,10 @@
 
           <!-- Page Heading -->
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">管理訂單：<?= $buyInfo['in_charge_name'];?>的 <?= $buyInfo['store_name'];?></h1>
+            <h1 class="h3 mb-0 text-gray-800">
+              管理訂單：<?= $buyInfo['in_charge_name'];?>的 <?= $buyInfo['store_name'];?>
+              (<?= $buyInfo['store_tel'];?>)
+            </h1>
           </div>
 
           <!-- Content Row -->
