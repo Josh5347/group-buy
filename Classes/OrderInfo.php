@@ -7,12 +7,12 @@
   class OrderInfo{
 
   
-    public static function getAllSortByAmount($buyId){
+    public static function getAllSortByProductNoByOrderer($buyId){
     
       global $connOO;
 
       $query = sprintf("SELECT * FROM order_info 
-      WHERE `buy_id` = %d ORDER BY `product_no` ASC", 
+      WHERE `buy_id` = %d ORDER BY `product_no` ASC , `orderer` ASC", 
       GetSQLValue((int)$buyId, "int"));
 
       $result = mysqli_query($connOO, $query);
@@ -113,6 +113,22 @@
 
     }
 
+    public static function getAllByBuyIdByProductNo($buyId, $ProductNo){
+
+      global $connOO;
+
+      $query = sprintf("SELECT * FROM order_info 
+      WHERE `buy_id` = %d AND `product_no` = %s ", 
+      GetSQLValue((int)$buyId, "int"),
+      GetSQLValue( $ProductNo, "text")
+      );
+
+      $result = mysqli_query($connOO, $query);
+      return $result;
+
+      
+    }
+
     public static function getPaidRowSumByOrderer($buyId, $orderer){
 
       global $connOO;
@@ -124,8 +140,15 @@
       );
 
       $result = mysqli_query($connOO, $query);
-      return $result;
-
+  
+      if (!$result){
+        exit("查詢團購資訊失敗 :" .$connOO->error);
+      }else{
+        // 傳回查詢陣列
+        $row = $result->fetch_assoc();
+        return (isset($row['paid_sum']))? $row['paid_sum']: 0;
+        
+      }
     }
 
     public static function getPriceRowSumByOrderer($buyId, $orderer){
@@ -139,9 +162,90 @@
       );
 
       $result = mysqli_query($connOO, $query);
-      return $result;
-
+      if (!$result){
+        exit("查詢團購資訊失敗 :" .$connOO->error);
+      }else{
+        // 傳回查詢陣列
+        return $result->fetch_assoc();
+      }
     }
+
+
+
+
+    public static function getOrderInfoSortByAmount($buyId){
+      global $connOO;
+      $arrayOrders = [];
+      $prevProduct = '';
+
+      $resultOrderByAmount = self::getAllSortByProductNoByOrderer($buyId);
+      if (!$resultOrderByAmount){
+        exit("查詢訂單資訊失敗 :" .$connOO->error);
+      }
+      
+      // 將資料庫內容送進陣列中
+      while( $row = $resultOrderByAmount->fetch_assoc()){
+  
+        // 取得每一產品的已付金額
+        $result1 = self::getPaidByBuyIdByProduct($buyId, $row['product_no']);
+        if (!$result1){
+          exit("查詢團購資訊失敗 :" .$connOO->error);
+        }
+        $row['paid_row_sum']= $result1->num_rows;
+
+        // 取得每一產品的總數量
+        $result2 = self::getAllByBuyIdByProductNo($buyId, $row['product_no']);
+        if (!$result2){
+          exit("查詢團購資訊失敗 :" .$connOO->error);
+        }
+        $row['amount'] = $result2->num_rows;
+  
+        array_push($arrayOrders, $row);
+        
+      }
+  
+      return $arrayOrders;
+    }
+
+    public static function getOrderInfoSortByOrderer(){
+      
+      global $connOO;
+      $prevOrderer = '';
+      $arrayOrders = [];
+     
+      $resultOrderByOrderer = self::getAllSortByOrderer($_GET['buy_id']);
+      if (!$resultOrderByOrderer){
+        exit("查詢訂單資訊失敗 :" .$connOO->error);
+      }
+  
+      // 將資料庫內容送進陣列中
+      while( $row = $resultOrderByOrderer->fetch_assoc()){
+
+        // 取得每一訂購人的已付金額
+        $row['paid_row_sum'] = 
+          self::getPaidRowSumByOrderer($row['buy_id'], $row['orderer']);
+        // 取得每一訂購人的總金額
+        $result =
+          self::getPriceRowSumByOrderer($row['buy_id'], $row['orderer']);
+        $row['price_row_sum'] = $result['price_sum'];
+        // 取得每一訂購人的未付金額
+        $row['unpaid_row_sum'] = $row['price_row_sum'] - $row['paid_row_sum'];
+        // 取得每一訂購人的數量
+        $row['amount'] = $result['price_amount'];
+        // 付清
+        $row['paid_all'] = ($row['price_row_sum']==$row['paid_row_sum'])? "付清": "";
+
+        array_push($arrayOrders, $row);
+      }
+
+    return $arrayOrders;
+
   }
+
+
+
+  
+
+}
 
 ?>

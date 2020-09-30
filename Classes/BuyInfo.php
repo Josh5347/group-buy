@@ -44,6 +44,16 @@
       $result = mysqli_query($connOO, $query);
       return $result;
     }
-  }
+  
+    public static function getAll($buyId){
+      global $connOO;
 
+      $resultBuyInfo = self::getOneByBuyId($buyId);
+      if (!$resultBuyInfo){
+        exit("查詢團購資訊失敗 :" .$connOO->error);
+      }
+      return $resultBuyInfo->fetch_assoc();
+
+    }
+  }
 ?>

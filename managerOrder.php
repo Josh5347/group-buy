@@ -18,190 +18,6 @@
     return ($paid)? "paid-color": "unpaid-color";
   }
 
-  function showInfo(){
-    global $buyInfo;
-
-    $resultBuyInfo = getBuyInfo();
-    $buyInfo = $resultBuyInfo->fetch_assoc();
-
-
-  }
-
-  function getBuyInfo(){
-    global $connOO;
-
-    $result = BuyInfo::getOneByBuyId($_GET['buy_id']);
-    if (!$result){
-      exit("查詢團購資訊失敗 :" .$connOO->error);
-    }else{
-      return $result;
-    }
-
-  }
-
-  function getOrderInfoSortByAmount(){
-    global $connOO, $numOfProduct, $resultOrderByAmount;
-    $arrayOrders = [];
-    $prevProduct = '';
-
-    $resultOrderByAmount = OrderInfo::getAllSortByAmount($_GET['buy_id']);
-    if (!$resultOrderByAmount){
-      exit("查詢訂單資訊失敗 :" .$connOO->error);
-    }
-
-    $i = 1;
-    // 將資料庫內容送進陣列中
-    while( $row = $resultOrderByAmount->fetch_assoc()){
-
-      if($row['product'] != $prevProduct){
-        $prevProduct = $row['product'];
-        $i = 1;
-        $row['amount'] = $i;
-        // 取得每一產品的已付數
-
-        $paidRowSum = 
-          $row['paid_row_sum'] = 
-          getPaidRowSumByProductNo($row['buy_id'], $row['product_no']);
-      }else{
-        $i++;
-        $row['amount'] = $i;
-        $row['paid_row_sum'] = $paidRowSum;
-      }
-      array_push($arrayOrders, $row);
-      $numOfProduct++;
-    }
-
-    // 以 product_no為key1 升冪 ,amount為key2排序 降冪
-    usort($arrayOrders, function($a, $b){
-      if($a['product_no'] == $b['product_no']){
-        if($a['amount'] == $b['amount']){
-          if($a['orderer'] == $b['orderer']){
-            return 0;
-          }elseif($a['orderer'] > $b['orderer']){
-            return 1;
-          }else{
-            return -1;
-          }
-        }elseif($a['amount'] > $b['amount']){
-          return -1;
-        }else{
-          return 1;
-        }
-      }else if($a['product_no'] > $b['product_no']){
-        return 1;
-      }else{
-        return -1;
-      }
-    });
-
-    return $arrayOrders;
-
-  }
-
-  function getPaidRowSumByProductNo($buyId, $ProductNo){
-    global $connOO;
-
-    $result = OrderInfo::getPaidByBuyIdByProduct($buyId, $ProductNo);
-    if (!$result){
-      exit("查詢團購資訊失敗 :" .$connOO->error);
-    }else{
-      // 傳回查詢列數
-      return $result->num_rows;
-    }
-
-  }
-
-  function getOrderInfoSortByOrderer(){
-    global $connOO;
-    $prevOrderer = '';
-    $arrayOrders = [];
-   
-    $resultOrderByOrderer = OrderInfo::getAllSortByOrderer($_GET['buy_id']);
-    if (!$resultOrderByOrderer){
-      exit("查詢訂單資訊失敗 :" .$connOO->error);
-    }
-    
-    // 將資料庫內容送進陣列中
-    while( $row = $resultOrderByOrderer->fetch_assoc()){
-
-      // 取得每一訂購人的已付金額
-      $row['paid_row_sum'] = 
-        getPaidRowSumByOrderer($row['buy_id'], $row['orderer']);
-      // 取得每一訂購人的總金額
-      $result =
-        getPriceRowSumByOrderer($row['buy_id'], $row['orderer']);
-      $row['price_row_sum'] = $result['price_sum'];
-      // 取得每一訂購人的未付金額
-      $row['unpaid_row_sum'] = $row['price_row_sum'] - $row['paid_row_sum'];
-      // 取得每一訂購人的數量
-      $row['amount'] = $result['price_amount'];
-      // 付清
-      $row['paid_all'] = ($row['price_row_sum']==$row['paid_row_sum'])? "付清": "";
-
-      array_push($arrayOrders, $row);
-    }
-
-    return $arrayOrders;
-
-  }
-
-  function getPaidRowSumByOrderer($buyId, $orderer){
-    global $connOO;
-
-    $result = OrderInfo::getPaidRowSumByOrderer($buyId, $orderer);
-    if (!$result){
-      exit("查詢團購資訊失敗 :" .$connOO->error);
-    }else{
-      // 傳回查詢陣列
-      $row = $result->fetch_assoc();
-      return (isset($row['paid_sum']))? $row['paid_sum']: 0;
-      
-    }
-  }
-
-  function getPriceRowSumByOrderer($buyId, $orderer){
-    global $connOO;
-
-    $result = OrderInfo::getPriceRowSumByOrderer($buyId, $orderer);
-    if (!$result){
-      exit("查詢團購資訊失敗 :" .$connOO->error);
-    }else{
-      // 傳回查詢陣列
-      return $result->fetch_assoc();
-    }
-  }
-
-  function getOrderInfoShowExplanation(){
-    global $resultOrderByAmount;
-    $arrayOrders = [];
-    $prevProduct = '';
-
-    $resultOrderByAmount->data_seek(0);
-        // 將資料庫內容送進陣列中
-    while( $row = $resultOrderByAmount->fetch_assoc()){
-      array_push($arrayOrders, $row);
-    }
-
-    // 以 product_no為key1 升冪 ,orderer為key2排序 升冪
-    usort($arrayOrders, function($a, $b){
-      if($a['product_no'] == $b['product_no']){
-        if($a['orderer'] == $b['orderer']){
-          return 0;
-        }elseif($a['orderer'] > $b['orderer']){
-          return 1;
-        }else{
-          return -1;
-        }
-      }else if($a['product_no'] > $b['product_no']){
-        return 1;
-      }else{
-        return -1;
-      }
-    });
-
-    return $arrayOrders;
-
-  }
 
   function showOrder(){
     global $buyInfo;
@@ -302,7 +118,6 @@
 
   //錯誤訊息
   $errors = [];
-  $buyInfo = [];
   $ordersByAmount = '';
   $numOfProduct = 0; // 份數
   $resultOrderByAmount; //全域變數
@@ -328,10 +143,10 @@
   }
 
   if(isset($_REQUEST['buy_id'])){
-    showInfo();
-    $ordersByAmount = getOrderInfoSortByAmount();// 按件計算
-    $ordersByOrderer = getOrderInfoSortByOrderer(); // 按人計算
-    $ordersExplan = getOrderInfoShowExplanation();// 老闆我要訂
+    $buyInfo = BuyInfo::getAll($_GET['buy_id']);
+    $ordersByAmount = OrderInfo::getOrderInfoSortByAmount($_GET['buy_id']);// 按件計算
+    $ordersByOrderer = OrderInfo::getOrderInfoSortByOrderer(); // 按人計算
+    $ordersExplan = OrderInfo::getOrderInfoSortByAmount($_GET['buy_id']);// 老闆我要訂
     $arrayProducts = showOrder();// 修改訂單
   }
 
@@ -386,7 +201,7 @@
                 </div>
                 <div class="card-body">
                   <div class="form-group">
-                    <span>共 <?= $numOfProduct;?> 份</span>
+                    <span>共 <?= count($ordersByAmount);?> 份</span>
                     <hr>
                     <table class="table table-borderless text-right">
                       <tbody>
@@ -682,16 +497,25 @@
                                   <?php
                                     if ($prevOrderer != $orderByAmount['orderer']){
                                       $prevOrderer = $orderByAmount['orderer'];
+                                      $i = 0;
                                     }
-                                    echo ($orderByAmount['explanation']!=null)? $orderByAmount['orderer'].':'. $orderByAmount['explanation']: null; 
+                                    if($orderByAmount['explanation']!=null){ 
+                                      echo $orderByAmount['orderer'].':'. $orderByAmount['explanation'];
+                                      $i++;
+                                    } 
                                     // echo '<br />'.$orderByAmount['orderer'].':'. $orderByAmount['explanation'];
                               }else{
                                 /* 同一訂購人之同一產品，說明僅顯示一次 */
-                                /* if ($prevOrderer != $orderByAmount['orderer']){ */
+                                if ($prevOrderer != $orderByAmount['orderer']){
                                   $prevOrderer = $orderByAmount['orderer'];
                                   // echo '<br />'.$orderByAmount['orderer'].':'. $orderByAmount['explanation'];
-                                  echo ($orderByAmount['explanation']!=null)? '<br />'. $orderByAmount['orderer'].':'. $orderByAmount['explanation']:'';
-                                /* } */
+                                  if($orderByAmount['explanation']!=null){
+                                    echo $orderByAmount['orderer'].':'. $orderByAmount['explanation'];
+                                    $i++;
+                                    // 有2筆以上的說明，第1筆後需跳行
+                                    echo ( $i >= 1)? '<br />': '';
+                                  }
+                                }
                                 
                             
                               }

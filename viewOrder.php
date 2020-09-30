@@ -3,30 +3,17 @@
 <?php require_once 'Connections/function.php'; ?>
 <?php require_once 'Classes/Functions.php';?>
 <?php require_once 'Classes/BuyInfo.php';?>
+<?php require_once 'Classes/OrderInfo.php';?>
 <?php use Classes\Functions; ?>
 <?php use Classes\BuyInfo; ?>
+<?php use Classes\OrderInfo; ?>
 
 <?php
 
-function showInfo(){
-  global $buyInfo;
-
-  $resultBuyInfo = getBuyInfo();
-  $buyInfo = $resultBuyInfo->fetch_assoc();
-
+function checkPaid($paid){
+  return ($paid)? "paid-color": "unpaid-color";
 }
 
-function getBuyInfo(){
-  global $connOO;
-
-  $result = BuyInfo::getOneByBuyId($_GET['buy_id']);
-  if (!$result){
-    exit("查詢團購資訊失敗 :" .$connOO->error);
-  }else{
-    return $result;
-  }
-
-}
 
   /****************************************************/
   /*                    main                          */
@@ -36,15 +23,18 @@ function getBuyInfo(){
   $errors = [];
   $i = 0;
   if(isset($_REQUEST['buy_id'])){
-    showInfo();
+    $buyInfo = BuyInfo::getAll($_GET['buy_id']);
+    $ordersByAmount = OrderInfo::getOrderInfoSortByAmount($_GET['buy_id']);// 按件統計
+    $ordersByOrderer = OrderInfo::getOrderInfoSortByOrderer(); // 按人統計  }
   }
-
 ?>
 
 <?php require_once 'common/htmlHeader.php'; ?>
 
   <title>團購網 - 訂單明細</title>
   <link href="css/style.css" rel="stylesheet">
+  <link href="css/managerOrder.css" rel="stylesheet">
+
 </head>
 
 <body id="page-top">
@@ -85,7 +75,7 @@ function getBuyInfo(){
                       按件計算
                     </a>
                   </div>
-                  <div id="collapse1" class="collapse " data-parent="#accordion">
+                  <div id="collapse1" class="collapse show" data-parent="#accordion">
                     <div class="card-body">
                       <div class="table-responsive">
                         <table class="table table-bordered table-sm">
@@ -94,15 +84,60 @@ function getBuyInfo(){
                               <th class="text-left">產品</th>
                               <th class="text-right">數量</th>
                               <th class="text-right">單價</th>
-                              <th class="text-right">已付數</th>
                               <th class="text-center">顯示說明</th>
                             </tr>
                           </thead>
                           <tbody>
-                            
+                            <?php 
+                            $prevProduct = '';
+                            foreach($ordersByAmount as $orderByAmount  ){
+                              if($prevProduct != $orderByAmount['product'] ){
+                                $prevProduct = $orderByAmount['product'];
+                            ?>
+                                </tr>
+                                <tr>
+                                  <td class="text-left"><?= $orderByAmount['product'];?></td>
+                                  <td class="text-right"><?= $orderByAmount['amount']?></td>
+                                  <td class="text-right"><?= $orderByAmount['price'];?></td>
+                                  <td class="text-center orderer <?= checkPaid($orderByAmount['paid'])?>" 
+                                  data-paid="<?= $orderByAmount['paid'];?>"
+                                  data-order-sn="<?= $orderByAmount['order_sn'];?>"
+                                  data-buy-id="<?= $buyInfo['buy_id'];?>" 
+                                  data-order-id="<?= $orderByAmount['order_id'];?>" 
+                                  data-total-paid="<?= $buyInfo['total_paid'];?>" 
+                                  data-sum="<?=$buyInfo['sum'];?>"
+                                  data-price="<?= $orderByAmount['price'];?>"  
+                                  >
+                                    <a href="javascript:void(0)"><?= $orderByAmount['orderer'];?></a>
+                                  </td>
+                                
+                              <?php
+                                }else{                                 
+                              ?>
+                                <td class="text-center orderer <?= checkPaid($orderByAmount['paid'])?>"
+                                data-paid="<?= $orderByAmount['paid'];?>"
+                                data-order-sn="<?= $orderByAmount['order_sn'];?>"
+                                data-buy-id="<?= $buyInfo['buy_id'];?>" 
+                                data-order-id="<?= $orderByAmount['order_id'];?>" 
+                                data-total-paid="<?= $buyInfo['total_paid'];?>" 
+                                data-sum="<?=$buyInfo['sum'];?>"
+                                data-price="<?= $orderByAmount['price'];?>"
+                                >
+                                  <a href="javascript:void(0)"><?= $orderByAmount['orderer'];?></a>
+                                </td>
+                              <?php
+                                }
+                              ?>
+                              
+                            <?php
+                            }
+                            ?>
+                            </tr>
                           </tbody>
                         </table>
                       </div>
+
+
                     </div>
                   </div>
                 </div>
@@ -115,7 +150,67 @@ function getBuyInfo(){
                   </div>
                   <div id="collapse2" class="collapse" data-parent="#accordion">
                     <div class="card-body">
-                      Lorem ipsum..
+                      <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                          <thead>
+                            <tr>
+                              <th class="text-left">訂購人</th>
+                              <th class="text-right">數量</th>
+                              <th class="text-right">總共</th>
+                              <th class="text-center">顯示說明</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <?php 
+                            $prevOrderer = '';
+                            foreach($ordersByOrderer as $orderByOrderer  ){
+                              if($prevOrderer != $orderByOrderer['orderer'] ){
+                                $prevOrderer = $orderByOrderer['orderer'];
+                            ?>
+                                </tr>
+                                <tr>
+                                  <td class="text-left"><?= $orderByOrderer['orderer'];?></td>
+                                  <td class="text-right"><?= $orderByOrderer['amount']?></td>
+                                  <td class="text-right"><?= $orderByOrderer['price_row_sum'];?></td>
+                                  <td class="text-center orderer <?= checkPaid($orderByOrderer['paid'])?>" 
+                                  data-paid="<?= $orderByOrderer['paid'];?>"
+                                  data-order-sn="<?= $orderByOrderer['order_sn'];?>"
+                                  data-buy-id="<?= $buyInfo['buy_id'];?>" 
+                                  data-order-id="<?= $orderByOrderer['order_id'];?>" 
+                                  data-total-paid="<?= $buyInfo['total_paid'];?>" 
+                                  data-sum="<?=$buyInfo['sum'];?>"
+                                  data-price="<?= $orderByOrderer['price'];?>"  
+                                  >
+                                    <a href="javascript:void(0)"><?= $orderByOrderer['product'];?></a>
+                                  </td>
+                                
+                              <?php
+                                }else{                                 
+                              ?>
+                                <td class="text-center orderer <?= checkPaid($orderByOrderer['paid'])?>"
+                                data-paid="<?= $orderByOrderer['paid'];?>"
+                                data-order-sn="<?= $orderByOrderer['order_sn'];?>"
+                                data-buy-id="<?= $buyInfo['buy_id'];?>" 
+                                data-order-id="<?= $orderByOrderer['order_id'];?>" 
+                                data-total-paid="<?= $buyInfo['total_paid'];?>" 
+                                data-sum="<?=$buyInfo['sum'];?>"
+                                data-price="<?= $orderByOrderer['price'];?>"
+                                >
+                                  <a href="javascript:void(0)"><?= $orderByOrderer['product'];?></a>
+                                </td>
+                              <?php
+                                }
+                              ?>
+                              
+                            <?php
+                            }
+                            ?>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      
+
                     </div>
                   </div>
                 </div>
