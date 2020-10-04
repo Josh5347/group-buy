@@ -84,7 +84,7 @@
   if(isset($_REQUEST['store_no'])){
 
     if(buildGroupBuy()){
-      Header("Location: ". Functions::redirect('/home.php') );
+      echo  '<script> location.replace("/home.php"); </script>';
     }
   }
 

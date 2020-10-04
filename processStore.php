@@ -25,7 +25,7 @@
         $row = $result->fetch_assoc();
 
         if(insert_store_product($row['store_no'])){
-          Header("Location: ". Functions::redirect('/home.php') );
+          echo  '<script> location.replace("/home.php"); </script>';
         }else{
           trigger_error(mysqli_error($connOO), E_USER_ERROR);
         }
@@ -148,7 +148,7 @@
 
   //取消
   if(isset($_REQUEST['cancel'])){
-    Header("Location: ". Functions::redirect('/home.php') );
+    echo  '<script> location.replace("/home.php"); </script>';
   }
 
   //儲存為群組專用店家

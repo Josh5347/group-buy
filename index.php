@@ -1,3 +1,8 @@
+<?php
+  if(!isset($_SESSION)){
+    session_start();
+  }
+?>
 <?php require_once 'Connections/connectionOO.php'; ?>
 <?php require_once 'Connections/function.php'; ?>
 <?php require_once 'Classes/AccountPassword.php';?>
@@ -6,9 +11,7 @@
 <?php use Classes\AccountPassword; ?>
 <?php
 
-  if(!isset($_SESSION)){
-    session_start();
-  }
+
 
   function createAccountSuccessMsg(){
     if( isset($_SESSION['create_account']) &&
@@ -62,10 +65,10 @@
       $_SESSION['username'] = $_REQUEST['account'];
 
       //若有勾選記住我，儲存帳密於cookie
-      if(isset($_REQUEST['rememberMeCheck'])){
+      /* if(isset($_REQUEST['rememberMeCheck'])){
         setcookie("username",$_REQUEST['account'],time()+ 3600*24*365, "/");
         setcookie("password",$_REQUEST['pwd'],time()+ 3600*24*365, "/");
-      }
+      } */
       
     }else{
       //帳密檢核不通過的錯誤訊息
@@ -104,7 +107,11 @@
 
     //驗證通過
     if(validation()){
-      Header("Location: ". Functions::redirect('/home.php') );
+      // exit(Header("Location:". Functions::redirect('/home.php') ));
+      //exit(Header("Location:". Functions::redirect('/home.php') ));
+      echo '<script> location.replace("/home.php"); </script>';
+
+
     }
   }
 ?>
@@ -147,10 +154,10 @@
 
                   <form method="post" action="<?=$_SERVER['PHP_SELF']?>" class="user">
                     <div class="form-group">
-                      <input type="text" name="account" class="form-control form-control-user" value="<?= $cookieUsername;?>" placeholder="帳號">
+                      <input type="text" name="account" class="form-control form-control-user"  placeholder="帳號:cccccc">
                     </div>
                     <div class="form-group">
-                      <input type="password" name="pwd" class="form-control form-control-user" value="<?= $cookiePassword;?>" placeholder="密碼">
+                      <input type="password" name="pwd" class="form-control form-control-user" placeholder="密碼:cccccc">
                     </div>
                     <div class="form-group">
                       <div class="custom-control custom-checkbox small">

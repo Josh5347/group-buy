@@ -66,7 +66,7 @@
   $result = false;
   
   $StringExplo=explode("/",$_SERVER['REQUEST_URI']);
-  $HeadTo=$StringExplo[0]."/index.php";
+  // $HeadTo=$StringExplo[0]."/index.php";
 
   //有按建立群組按鈕
   if( isset($_REQUEST['insert']) &&
@@ -89,7 +89,8 @@
       if ($result){
         //echo "<script>alert('建立成功，請登入');</script>";
         $_SESSION['create_account'] = 'success';
-        header("Location: ".$HeadTo);
+        // Header("Location:".$HeadTo);
+        echo '<script> location.replace("/index.php"); </script>';
       }else{
         trigger_error(mysqli_error($conn), E_USER_ERROR);
       }

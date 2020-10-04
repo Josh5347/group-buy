@@ -5,5 +5,5 @@
 
 <?php 
   unset($_SESSION['username']);
-  header("Location:". Functions::redirect("/index.php") );
+  echo '<script> location.replace("/index.php"); </script>';
 ?>

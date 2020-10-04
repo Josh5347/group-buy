@@ -89,7 +89,7 @@
       $totalAmount = $order_sn;
       // 變更團購資訊的數量及總金額
       if(update_buy_info($sum)){
-        Header("Location: ". Functions::redirect('/home.php') );
+        echo  '<script> location.replace("/home.php"); </script>';
       }else{
         trigger_error(mysqli_error($connOO), E_USER_ERROR);
       }
