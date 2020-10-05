@@ -14,6 +14,10 @@ function checkPaid($paid){
   return ($paid)? "paid-color": "unpaid-color";
 }
 
+function checkCancelable($orderer){
+  // 訂購者本人可以取消訂購，回傳 ".cancelable"
+  return ($orderer == $_SESSION['username'])? "cancelable": "";
+}
 
   /****************************************************/
   /*                    main                          */
@@ -34,6 +38,9 @@ function checkPaid($paid){
   <title>團購網 - 訂單明細</title>
   <link href="css/style.css" rel="stylesheet">
   <link href="css/managerOrder.css" rel="stylesheet">
+  <link href="css/viewOrder.css" rel="stylesheet">
+  <script src="js/viewOrder.js"></script>
+
 
 </head>
 
@@ -56,10 +63,16 @@ function checkPaid($paid){
         <div class="container-fluid">
 
           <!-- Page Heading -->
-          <div class="d-sm-flex align-items-center justify-content-between mb-4">
+          <div class="d-lg-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">
               訂單總覽：<?= $buyInfo['in_charge_name'];?>－<?= $buyInfo['store_name'];?>
               (<?= $buyInfo['store_tel'];?>)
+            </h1>
+          </div>
+
+          <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h5 mb-0 text-gray-800">
+              總共 <?= count($ordersByAmount);?> 份，<?=$buyInfo['amount'];?> 人購買，共 <?=$buyInfo['sum'];?> 元。
             </h1>
           </div>
 
@@ -99,7 +112,10 @@ function checkPaid($paid){
                                   <td class="text-left"><?= $orderByAmount['product'];?></td>
                                   <td class="text-right"><?= $orderByAmount['amount']?></td>
                                   <td class="text-right"><?= $orderByAmount['price'];?></td>
-                                  <td class="text-center orderer <?= checkPaid($orderByAmount['paid'])?>" 
+                                  <td class="text-center cancel 
+                                  sn-<?= $orderByAmount['order_sn'];?>
+                                  <?= checkCancelable($orderByAmount['orderer']); ?>
+                                  <?= checkPaid($orderByAmount['paid']); ?>" 
                                   data-paid="<?= $orderByAmount['paid'];?>"
                                   data-order-sn="<?= $orderByAmount['order_sn'];?>"
                                   data-buy-id="<?= $buyInfo['buy_id'];?>" 
@@ -108,13 +124,18 @@ function checkPaid($paid){
                                   data-sum="<?=$buyInfo['sum'];?>"
                                   data-price="<?= $orderByAmount['price'];?>"  
                                   >
-                                    <a href="javascript:void(0)"><?= $orderByAmount['orderer'];?></a>
+                                    <div class="cell-content">
+                                      <?= $orderByAmount['orderer'];?>
+                                    </div>
                                   </td>
                                 
                               <?php
                                 }else{                                 
                               ?>
-                                <td class="text-center orderer <?= checkPaid($orderByAmount['paid'])?>"
+                                <td class="text-center cancel 
+                                sn-<?= $orderByAmount['order_sn'];?>
+                                <?= checkCancelable($orderByAmount['orderer']); ?>
+                                <?= checkPaid($orderByAmount['paid']); ?>"
                                 data-paid="<?= $orderByAmount['paid'];?>"
                                 data-order-sn="<?= $orderByAmount['order_sn'];?>"
                                 data-buy-id="<?= $buyInfo['buy_id'];?>" 
@@ -123,7 +144,9 @@ function checkPaid($paid){
                                 data-sum="<?=$buyInfo['sum'];?>"
                                 data-price="<?= $orderByAmount['price'];?>"
                                 >
-                                  <a href="javascript:void(0)"><?= $orderByAmount['orderer'];?></a>
+                                  <div class="cell-content">
+                                    <?= $orderByAmount['orderer'];?>
+                                  </div>
                                 </td>
                               <?php
                                 }
