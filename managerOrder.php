@@ -342,7 +342,9 @@
                                   <td class="text-right"><?= $orderByAmount['amount']?></td>
                                   <td class="text-right"><?= $orderByAmount['price'];?></td>
                                   <td class="text-right paid-row-sum"><?= $orderByAmount['paid_row_sum'];?></td>
-                                  <td class="text-center orderer <?= checkPaid($orderByAmount['paid'])?>" 
+                                  <td class="text-center orderer 
+                                  <?= checkPaid($orderByAmount['paid'])?> 
+                                  id-<?= $orderByAmount['order_id'];?>sn-<?= $orderByAmount['order_sn'];?>"
                                   data-paid="<?= $orderByAmount['paid'];?>"
                                   data-order-sn="<?= $orderByAmount['order_sn'];?>"
                                   data-buy-id="<?= $buyInfo['buy_id'];?>" 
@@ -357,7 +359,9 @@
                               <?php
                                 }else{                                 
                               ?>
-                                <td class="text-center orderer <?= checkPaid($orderByAmount['paid'])?>"
+                                <td class="text-center orderer 
+                                <?= checkPaid($orderByAmount['paid'])?>
+                                id-<?= $orderByAmount['order_id'];?>sn-<?= $orderByAmount['order_sn'];?>"
                                 data-paid="<?= $orderByAmount['paid'];?>"
                                 data-order-sn="<?= $orderByAmount['order_sn'];?>"
                                 data-buy-id="<?= $buyInfo['buy_id'];?>" 
@@ -417,7 +421,9 @@
                                   <td class="text-right paid-row-sum"><?= $orderByOrderer['paid_row_sum'];?></td>
                                   <td class="text-right"><?= $orderByOrderer['unpaid_row_sum'];?></td>
                                   <td class="text-right"><?= $orderByOrderer['price_row_sum'];?></td>
-                                  <td class="text-center orderer <?= checkPaid($orderByOrderer['paid'])?>" 
+                                  <td class="text-center orderer 
+                                  <?= checkPaid($orderByOrderer['paid'])?> 
+                                  id-<?= $orderByOrderer['order_id'];?>sn-<?= $orderByOrderer['order_sn'];?>"
                                   data-paid="<?= $orderByOrderer['paid'];?>"
                                   data-order-sn="<?= $orderByOrderer['order_sn'];?>"
                                   data-buy-id="<?= $buyInfo['buy_id'];?>" 
@@ -432,7 +438,9 @@
                               <?php
                                 }else{                                 
                               ?>
-                                <td class="text-center orderer <?= checkPaid($orderByOrderer['paid'])?>"
+                                <td class="text-center orderer 
+                                <?= checkPaid($orderByOrderer['paid'])?> 
+                                id-<?= $orderByOrderer['order_id'];?>sn-<?= $orderByOrderer['order_sn'];?>"
                                 data-paid="<?= $orderByOrderer['paid'];?>"
                                 data-order-sn="<?= $orderByOrderer['order_sn'];?>"
                                 data-buy-id="<?= $buyInfo['buy_id'];?>" 
@@ -560,7 +568,9 @@
                                   <td class="text-left"><?= $orderByAmount['product'];?></td>
                                   <td class="text-right"><?= $orderByAmount['amount']?></td>
                                   <td class="text-right"><?= $orderByAmount['price'];?></td>
-                                  <td class="text-center <?= checkPaid($orderByAmount['paid'])?>" >
+                                  <td class="text-center 
+                                  <?= checkPaid($orderByAmount['paid'])?>
+                                  id-<?= $orderByAmount['order_id'];?>sn-<?= $orderByAmount['order_sn'];?>" >
                                     <button type="button" class="btn btn-link btn-sm"
                                     data-orderer="<?= $orderByAmount['orderer'];?>"
                                     data-buy-id="<?= $orderByAmount['buy_id'];?>"
@@ -575,7 +585,9 @@
                               <?php
                                 }else{                                 
                               ?>
-                                <td class="text-center <?= checkPaid($orderByAmount['paid'])?>">
+                                <td class="text-center 
+                                <?= checkPaid($orderByAmount['paid'])?> 
+                                id-<?= $orderByAmount['order_id'];?>sn-<?= $orderByAmount['order_sn'];?> ">
                                   <button type="button" class="btn btn-link btn-sm" 
                                   data-orderer="<?= $orderByAmount['orderer'];?>" 
                                   data-buy-id="<?= $orderByAmount['buy_id'];?>"
@@ -633,7 +645,9 @@
                                   <td class="text-left"><?= $orderByAmount['product'];?></td>
                                   <td class="text-right"><?= $orderByAmount['amount']?></td>
                                   <td class="text-right"><?= $orderByAmount['price'];?></td>
-                                  <td class="text-center <?= checkPaid($orderByAmount['paid'])?>" >
+                                  <td class="text-center 
+                                  <?= checkPaid($orderByAmount['paid'])?>
+                                  id-<?= $orderByAmount['order_id'];?>sn-<?= $orderByAmount['order_sn'];?>" >
                                     <form method="post" action="<?= $_SERVER['PHP_SELF'].'?buy_id='.$_GET['buy_id'];?>" >
                                       <button type="button" class="btn btn-link btn-sm btn-delete" >
                                         <?= $orderByAmount['orderer'];?>
@@ -649,7 +663,9 @@
                               <?php
                                 }else{                                 
                               ?>
-                                <td class="text-center <?= checkPaid($orderByAmount['paid'])?>">
+                                <td class="text-center 
+                                <?= checkPaid($orderByAmount['paid'])?> 
+                                id-<?= $orderByAmount['order_id'];?>sn-<?= $orderByAmount['order_sn'];?>">
                                   <form method="post" action="<?= $_SERVER['PHP_SELF'].'?buy_id='.$_GET['buy_id'];?>" >
                                     <button type="button" class="btn btn-link btn-sm btn-delete" >
                                       <?= $orderByAmount['orderer'];?>
