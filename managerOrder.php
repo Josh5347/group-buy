@@ -124,22 +124,23 @@
   $arrayProducts = [];
   $toShipping = false;
   $i = 0;
-  showCollapse('default');
+  /* showCollapse('default'); */
 
   if(isset($_REQUEST['update'])){
     updateOrderInfo();
-    showCollapse('update');
+    /* showCollapse('update'); */
   
   }
 
   if(isset($_REQUEST['shipping'])){
-    showCollapse('shipping');
+    /* showCollapse('shipping'); */
     $toShipping = true;
+
   }
 
   if(isset($_REQUEST['delete'])){
     deleteOrderInfo();
-    showCollapse('delete');
+    /* showCollapse('delete'); */
   }
 
   if(isset($_REQUEST['buy_id'])){
@@ -316,7 +317,7 @@
                       按件計算
                     </a>
                   </div>
-                  <div id="collapse1" class="collapse <?= $showAmount;?>" data-parent="#accordion">
+                  <div id="collapse1" class="collapse show" data-parent="#accordion">
                     <div class="card-body">
                       <div class="table-responsive">
                         <table class="table table-bordered table-sm">
@@ -341,7 +342,7 @@
                                   <td class="text-left"><?= $orderByAmount['product'];?></td>
                                   <td class="text-right"><?= $orderByAmount['amount']?></td>
                                   <td class="text-right"><?= $orderByAmount['price'];?></td>
-                                  <td class="text-right paid-row-sum"><?= $orderByAmount['paid_row_sum'];?></td>
+                                  <td class="text-right paid-count-row-sum"><?= $orderByAmount['paid_row_sum'];?></td>
                                   <td class="text-center orderer 
                                   <?= checkPaid($orderByAmount['paid'])?> 
                                   id-<?= $orderByAmount['order_id'];?>sn-<?= $orderByAmount['order_sn'];?>"
@@ -410,6 +411,7 @@
                           <tbody>
                             <?php 
                             $prevOrderer = '';
+                            $rowNum = 0;
                             foreach($ordersByOrderer as $orderByOrderer  ){
                               if($prevOrderer != $orderByOrderer['orderer'] ){
                                 $prevOrderer = $orderByOrderer['orderer'];
@@ -419,8 +421,8 @@
                                   <td class="text-left"><?= $orderByOrderer['orderer'];?></td>
                                   <td class="text-right"><?= $orderByOrderer['amount']?></td>
                                   <td class="text-right paid-row-sum"><?= $orderByOrderer['paid_row_sum'];?></td>
-                                  <td class="text-right"><?= $orderByOrderer['unpaid_row_sum'];?></td>
-                                  <td class="text-right"><?= $orderByOrderer['price_row_sum'];?></td>
+                                  <td class="text-right unpaid-row-sum"><?= $orderByOrderer['unpaid_row_sum'];?></td>
+                                  <td class="text-right price-row-sum" ><?= $orderByOrderer['price_row_sum'];?></td>
                                   <td class="text-center orderer 
                                   <?= checkPaid($orderByOrderer['paid'])?> 
                                   id-<?= $orderByOrderer['order_id'];?>sn-<?= $orderByOrderer['order_sn'];?>"
@@ -430,7 +432,8 @@
                                   data-order-id="<?= $orderByOrderer['order_id'];?>" 
                                   data-total-paid="<?= $buyInfo['total_paid'];?>" 
                                   data-sum="<?=$buyInfo['sum'];?>"
-                                  data-price="<?= $orderByOrderer['price'];?>"  
+                                  data-price="<?= $orderByOrderer['price'];?>"
+                                  data-row-num="<?= ++$rowNum;?>"
                                   >
                                     <a href="javascript:void(0)"><?= $orderByOrderer['product'];?></a>
                                   </td>
@@ -544,7 +547,7 @@
                       修改訂單
                     </a>
                   </div>
-                  <div id="collapse4" class="collapse <?= $showUpdate;?>" data-parent="#accordion">
+                  <div id="collapse4" class="collapse " data-parent="#accordion">
                     <div class="card-body">
                       <div class="table-responsive">
                         <table class="table table-bordered table-sm">
@@ -621,7 +624,7 @@
                       刪除模式
                     </a>
                   </div>
-                  <div id="collapse5" class="collapse <?= $showDelete;?>" data-parent="#accordion">
+                  <div id="collapse5" class="collapse " data-parent="#accordion">
                     <div class="card-body">
                       <div class="table-responsive">
                         <table class="table table-bordered table-sm">
@@ -697,16 +700,13 @@
                 <div class="card">
                   <div class="card-header">
                     <!-- 使超連結失效 -->
-                    <a class="collapsed card-link" id="collapse6" data-toggle="collapse" href="####">
+                    <a class="collapsed card-link" data-toggle="collapse" href="#collapse6">
                       出貨狀態
                     </a>
                   </div>
-                  <div id="collapse6" class="collapse <?= $showShipping;?>" data-parent="#accordion">
+                  <div id="collapse6" class="collapse " data-parent="#accordion">
                     <div class="card-body">
                       <div class="table-responsive">
-                        <form id="shipping" method="post" action="<?= $_SERVER['PHP_SELF'].'?buy_id='.$_GET['buy_id'];?>" >
-                          <input type="hidden" name="shipping" />
-                        </form>
                         <table class="table table-bordered table-sm">
                           <thead>
                             <tr>
@@ -720,6 +720,7 @@
                           <tbody>
                             <?php 
                             $prevOrderer = '';
+                            $rowNum = 0;
                             foreach($ordersByOrderer as $orderByOrderer  ){
                               if($prevOrderer != $orderByOrderer['orderer'] ){
                                 $prevOrderer = $orderByOrderer['orderer'];
@@ -728,7 +729,7 @@
                                 <tr>
                                   <td class="text-left"><?= $orderByOrderer['orderer'];?></td>
                                   <td class="text-right"><?= $orderByOrderer['amount']?></td>
-                                  <td class="text-right"><?= $orderByOrderer['paid_all'];?></td>
+                                  <td class="text-right row<?=++$rowNum?>-paid-all"><?= $orderByOrderer['paid_all'];?></td>
                                   <td class="text-right batch-shipping">
                                     <a href="####">出貨 >></a>
                                   </td>
@@ -922,7 +923,3 @@
 </body>
 </html>
 <?php
-/* 當按下出貨狀態時，將錨點指向出貨狀態表格 */
-if($toShipping){
-  echo '<script>window.location.hash="#collapse6";</script>';
-}

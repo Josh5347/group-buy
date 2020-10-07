@@ -6,33 +6,50 @@ $(function () {
     var order_id = $(this).data("order-id");
     var order_sn = $(this).data("order-sn");
     var classIdSn = ".id-" + order_id + "sn-" + order_sn;
-    var totalRowPaid = $(this).parent().find(".paid-row-sum").text();  
+    var totalRowPaidCnt  = parseInt($(this).parent().find(".paid-count-row-sum").text());  
+    var totalRowPaidCnt_text = $(this).parent().find(".paid-count-row-sum");
+    var totalRowPaid = parseInt($(this).parent().find(".paid-row-sum").text());
     var totalRowPaid_text = $(this).parent().find(".paid-row-sum");
+    var totalRowUnPaid = parseInt($(this).parent().find(".unpaid-row-sum").text());
+    var totalRowUnPaid_text = $(this).parent().find(".unpaid-row-sum");
+    var priceRowSum = parseInt($(this).parent().find(".price-row-sum").text());
     var totalPaid = parseInt($(this).data("total-paid"));
     var sum = parseInt($(this).data("sum"));
     var price = parseInt($(this).data('price'));
+    var rowNum = parseInt($(this).data("row-num"));
+    var classRowPaidAll = '.' + 'row' + rowNum + '-paid-all';
     var totalUnPaid = 0;
     var totalPaid_td = $('.total-paid');
     var totalUnPaid_td = $('.total-unpaid');
     var sum_td = $('.sum');
 
+
     
     // console.log("classIdSn:"+classIdSn);
 
-    totalRowPaid = parseInt(totalRowPaid);
     // console.log("price:"+price);
     // console.log(totalRowPaid);
     if(paid == '0'){
       // 付款
       console.log("付款");
-      // 將所有同order_id同sn的class做付款動作
+      // 將所有同order_id同sn的classIdSn做付款動作
       $(classIdSn).removeClass("unpaid-color");
       $(classIdSn).addClass("paid-color");
       // $(this).removeClass("unpaid-color");
       // $(this).addClass("paid-color");
       // 更改DB之已付款flag
       updatePaidOfOrderInfo(buy_id, order_id, order_sn, 1);
-      totalRowPaid_text.text(++totalRowPaid);
+      // 更改按件計算之已付數
+      totalRowPaidCnt_text.text(++totalRowPaidCnt);
+      // 更改按人計算之已付金額
+      totalRowPaid_text.text(totalRowPaid + price);
+      // 更改按人計算之還剩金額
+      totalRowUnPaid_text.text(totalRowUnPaid - price);
+      // 出貨狀態 付款欄位顯示
+      if(priceRowSum == (totalRowPaid + price)){
+        $(classRowPaidAll).text("付清");
+      }
+
       $(this).data("paid","1");
       totalPaid += price;
       totalUnPaid = sum - totalPaid;
@@ -40,14 +57,23 @@ $(function () {
     }else{
       // 取消付款
       console.log("取消");
-      // 將所有同order_id同sn的class做取消付款動作
+      // 將所有同order_id同sn的classIdSn做取消付款動作
       $(classIdSn).removeClass("paid-color");
       $(classIdSn).addClass("unpaid-color");
       // $(this).removeClass("paid-color");
       // $(this).addClass("unpaid-color");
       // 更改DB之已付款flag
       updatePaidOfOrderInfo(buy_id, order_id, order_sn, 0);
-      totalRowPaid_text.text(--totalRowPaid);
+      // 更改按件計算之已付數
+      totalRowPaidCnt_text.text(--totalRowPaidCnt);
+      // 更改按人計算之已付金額
+      totalRowPaid_text.text(totalRowPaid - price);
+      // 更改按人計算之還剩金額
+      totalRowUnPaid_text.text(totalRowUnPaid + price);
+      // 出貨狀態 付款欄位顯示
+      if(priceRowSum != (totalRowPaid + price)){
+        $(classRowPaidAll).text("");
+      }
       $(this).data("paid","0");
       totalPaid -= price;
       totalUnPaid = sum - totalPaid;
@@ -98,10 +124,6 @@ $(function () {
   });
 
   /* 出貨狀態 */
-  // 當按下出貨狀態時，重新整理頁面，以獲得最新資料庫資料
-  $('#collapse6').click(function () {
-    $('#shipping').submit();
-  })
 
   // 按下出貨日期，更新出貨日期
   $('.shipping').click(function () {
