@@ -242,7 +242,21 @@
 
   }
 
+  public static function countOrderIdNum($buyId){
+    global $connOO;
 
+    $query = sprintf("SELECT order_id FROM order_info 
+    WHERE `buy_id` = %d GROUP BY `order_id`", 
+    GetSQLValue((int)$buyId, "int")
+    );
+
+    $result = mysqli_query($connOO, $query);
+    if (!$result){
+      exit("查詢訂單數目失敗 :" .$connOO->error);
+    }
+    return $result;
+
+  }
 
   
 

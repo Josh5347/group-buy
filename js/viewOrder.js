@@ -16,22 +16,34 @@ $(function () {
 
   // 取消訂購
   $('.cancel').click(function () {
-    if(confirm("確定要取消此筆訂單")){
 
-      $(this).parent().remove();
+    var buy_id = $(this).parent().data("buy-id");
+    var order_id = $(this).parent().data("order-id");
+    var order_sn = $(this).parent().data("order-sn");
+    var minus_price = $(this).parent().data("price");
+    var classIdSn = ".id-" + order_id + "sn-" + order_sn;
+    var strClass = $(this).attr('class');
+
+    //檢查是否已經付款 
+    var paidFlg = (strClass.indexOf('paid-color') != -1)? true: false;
+  
+    if(confirm("確定要取消此筆訂單")){
+      // deleteOrderInfo( buy_id, order_id, order_sn );
+      // updateBuyInfo( buy_id, minus_price, paidFlg );
+      $(classIdSn).remove();
     }
+    console.log("order_id:"+order_id + " order_sn:"+order_sn);
   });
 
   function deleteOrderInfo( buy_id, order_id, order_sn ){
     var dataInput = {
       buyId : buy_id,
       orderId : order_id,
-      orderSn : order_sn,
-      updateFlag : flag
+      orderSn : order_sn
     };
-    // console.log("flag:"+flag);
+    console.log("order_sn:"+order_sn);
     $.ajax({
-        url: 'ajax/updateShippingDate.php',
+        url: 'ajax/deleteOrderInfo.php',
         data: dataInput,
         type: 'POST',
         dataType: 'JSON',
@@ -45,16 +57,15 @@ $(function () {
     });// end of ajax
   }
 
-  function updateBuyInfo( buy_id ){
+  function updateBuyInfo( buy_id, minus_price, paid_flg ){
     var dataInput = {
       buyId : buy_id,
-      orderId : order_id,
-      orderSn : order_sn,
-      updateFlag : flag
+      minusPrice : minus_price,
+      paidFlg : paid_flg
     };
-    // console.log("flag:"+flag);
+    console.log("flag:"+paid_flg);
     $.ajax({
-        url: 'ajax/updateShippingDate.php',
+        url: 'ajax/updateMoneyOfBuyInfo.php',
         data: dataInput,
         type: 'POST',
         dataType: 'JSON',

@@ -1,4 +1,4 @@
-<?php require_once '../Classes/DbParm.php'; ?>
+<?php require_once '../common/ajaxHeader.php'; ?>
 <?php require_once '../Connections/connectionOO.php'; ?>
 <?php require_once '../Connections/function.php'; ?>
 <?php require_once '../Classes/Functions.php';?>

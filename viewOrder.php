@@ -112,10 +112,11 @@ function checkCancelable($orderer){
                                   <td class="text-left"><?= $orderByAmount['product'];?></td>
                                   <td class="text-right"><?= $orderByAmount['amount']?></td>
                                   <td class="text-right"><?= $orderByAmount['price'];?></td>
-                                  <td class="text-center cancel 
-                                  sn-<?= $orderByAmount['order_sn'];?>
+                                  <td class="text-center
+                                  id-<?= $orderByAmount['order_id'];?>sn-<?= $orderByAmount['order_sn'];?>
                                   <?= checkCancelable($orderByAmount['orderer']); ?>
-                                  <?= checkPaid($orderByAmount['paid']); ?>" 
+                                  <?= checkPaid($orderByAmount['paid']); ?>
+                                  " 
                                   data-paid="<?= $orderByAmount['paid'];?>"
                                   data-order-sn="<?= $orderByAmount['order_sn'];?>"
                                   data-buy-id="<?= $buyInfo['buy_id'];?>" 
@@ -132,10 +133,11 @@ function checkCancelable($orderer){
                               <?php
                                 }else{                                 
                               ?>
-                                <td class="text-center cancel 
-                                sn-<?= $orderByAmount['order_sn'];?>
+                                <td class="text-center 
+                                id-<?= $orderByAmount['order_id'];?>sn-<?= $orderByAmount['order_sn'];?>
                                 <?= checkCancelable($orderByAmount['orderer']); ?>
-                                <?= checkPaid($orderByAmount['paid']); ?>"
+                                <?= checkPaid($orderByAmount['paid']); ?>
+                                "
                                 data-paid="<?= $orderByAmount['paid'];?>"
                                 data-order-sn="<?= $orderByAmount['order_sn'];?>"
                                 data-buy-id="<?= $buyInfo['buy_id'];?>" 
@@ -195,7 +197,10 @@ function checkCancelable($orderer){
                                   <td class="text-left"><?= $orderByOrderer['orderer'];?></td>
                                   <td class="text-right"><?= $orderByOrderer['amount']?></td>
                                   <td class="text-right"><?= $orderByOrderer['price_row_sum'];?></td>
-                                  <td class="text-center orderer <?= checkPaid($orderByOrderer['paid'])?>" 
+                                  <td class="text-center orderer
+                                  <?= checkPaid($orderByOrderer['paid'])?>
+                                  id-<?= $orderByOrderer['order_id'];?>sn-<?= $orderByOrderer['order_sn'];?>
+                                  " 
                                   data-paid="<?= $orderByOrderer['paid'];?>"
                                   data-order-sn="<?= $orderByOrderer['order_sn'];?>"
                                   data-buy-id="<?= $buyInfo['buy_id'];?>" 
@@ -210,7 +215,10 @@ function checkCancelable($orderer){
                               <?php
                                 }else{                                 
                               ?>
-                                <td class="text-center orderer <?= checkPaid($orderByOrderer['paid'])?>"
+                                <td class="text-center orderer
+                                <?= checkPaid($orderByOrderer['paid'])?>
+                                id-<?= $orderByOrderer['order_id'];?>sn-<?= $orderByOrderer['order_sn'];?>
+                                "
                                 data-paid="<?= $orderByOrderer['paid'];?>"
                                 data-order-sn="<?= $orderByOrderer['order_sn'];?>"
                                 data-buy-id="<?= $buyInfo['buy_id'];?>" 

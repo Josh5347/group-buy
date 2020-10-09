@@ -44,7 +44,27 @@
       $result = mysqli_query($connOO, $query);
       return $result;
     }
-  
+    
+    public static function updateCancelOrder($buyId, $total_paid, $amountOrderer, $sum){
+
+      global $connOO;
+      $datetime = date("Y-m-d H:i:s");
+
+      $query = sprintf("UPDATE buy_info SET 
+      `total_paid` = %d , `amount` = %d, `sum` = %d, `update_date` = %s
+      WHERE `buy_id` = %d",
+      GetSQLValue((int)$total_paid, "int"),
+      GetSQLValue((int)$amountOrderer, "int"),
+      GetSQLValue((int)$sum, "int"),
+      GetSQLValue(date("Y-m-d H:i:s"), "text"),
+      GetSQLValue((int)$buyId, "int")
+      );
+      
+      $result = mysqli_query($connOO, $query);
+      return $result;
+      
+    }
+
     public static function getAll($buyId){
       global $connOO;
 
