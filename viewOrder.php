@@ -85,7 +85,7 @@ function checkCancelable($orderer){
                 <div class="card">
                   <div class="card-header">
                     <a class="card-link" data-toggle="collapse" href="#collapse1">
-                      按件計算
+                      按件統計
                     </a>
                   </div>
                   <div id="collapse1" class="collapse show" data-parent="#accordion">
@@ -110,7 +110,7 @@ function checkCancelable($orderer){
                                 </tr>
                                 <tr>
                                   <td class="text-left"><?= $orderByAmount['product'];?></td>
-                                  <td class="text-right"><?= $orderByAmount['amount']?></td>
+                                  <td class="text-right amount-row-sum"><?= $orderByAmount['amount']?></td>
                                   <td class="text-right"><?= $orderByAmount['price'];?></td>
                                   <td class="text-center
                                   id-<?= $orderByAmount['order_id'];?>sn-<?= $orderByAmount['order_sn'];?>
@@ -195,10 +195,11 @@ function checkCancelable($orderer){
                                 </tr>
                                 <tr>
                                   <td class="text-left"><?= $orderByOrderer['orderer'];?></td>
-                                  <td class="text-right"><?= $orderByOrderer['amount']?></td>
-                                  <td class="text-right"><?= $orderByOrderer['price_row_sum'];?></td>
+                                  <td class="text-right amount-row-sum-byOrder"><?= $orderByOrderer['amount']?></td>
+                                  <td class="text-right price-row-sum-byOrder"><?= $orderByOrderer['price_row_sum'];?></td>
                                   <td class="text-center orderer
                                   <?= checkPaid($orderByOrderer['paid'])?>
+                                  <?= checkCancelable($orderByOrderer['orderer']); ?>
                                   id-<?= $orderByOrderer['order_id'];?>sn-<?= $orderByOrderer['order_sn'];?>
                                   " 
                                   data-paid="<?= $orderByOrderer['paid'];?>"
@@ -209,7 +210,9 @@ function checkCancelable($orderer){
                                   data-sum="<?=$buyInfo['sum'];?>"
                                   data-price="<?= $orderByOrderer['price'];?>"  
                                   >
-                                    <a href="javascript:void(0)"><?= $orderByOrderer['product'];?></a>
+                                    <div class="cell-content">
+                                      <?= $orderByOrderer['product'];?>
+                                    </div>
                                   </td>
                                 
                               <?php
@@ -217,6 +220,7 @@ function checkCancelable($orderer){
                               ?>
                                 <td class="text-center orderer
                                 <?= checkPaid($orderByOrderer['paid'])?>
+                                <?= checkCancelable($orderByOrderer['orderer']); ?>
                                 id-<?= $orderByOrderer['order_id'];?>sn-<?= $orderByOrderer['order_sn'];?>
                                 "
                                 data-paid="<?= $orderByOrderer['paid'];?>"
@@ -227,7 +231,9 @@ function checkCancelable($orderer){
                                 data-sum="<?=$buyInfo['sum'];?>"
                                 data-price="<?= $orderByOrderer['price'];?>"
                                 >
-                                  <a href="javascript:void(0)"><?= $orderByOrderer['product'];?></a>
+                                  <div class="cell-content">
+                                    <?= $orderByOrderer['product'];?>
+                                  </div>
                                 </td>
                               <?php
                                 }
@@ -282,7 +288,78 @@ function checkCancelable($orderer){
                   </div>
                   <div id="collapse5" class="collapse" data-parent="#accordion">
                     <div class="card-body">
-                      Lorem ipsum..
+                      <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                          <thead>
+                            <tr>
+                              <th class="text-left">訂購人</th>
+                              <th class="text-right">數量</th>
+                              <th class="text-right">付款</th>
+                              <th class="text-center">出貨日期</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <?php 
+                            $prevOrderer = '';
+                            $rowNum = 0;
+                            foreach($ordersByOrderer as $orderByOrderer  ){
+                              if($prevOrderer != $orderByOrderer['orderer'] ){
+                                $prevOrderer = $orderByOrderer['orderer'];
+                            ?>
+                                </tr>
+                                <tr>
+                                  <td class="text-left"><?= $orderByOrderer['orderer'];?></td>
+                                  <td class="text-right amount-row-sum-shipping"><?= $orderByOrderer['amount']?></td>
+                                  <td class="text-right row<?=++$rowNum?>-paid-all"><?= $orderByOrderer['paid_all'];?></td>
+                                  <td class="text-center shipping 
+                                  <?= checkPaid($orderByOrderer['paid'])?>
+                                  id-<?= $orderByOrderer['order_id'];?>sn-<?= $orderByOrderer['order_sn'];?>
+                                  " 
+                                  data-paid="<?= $orderByOrderer['paid'];?>"
+                                  data-order-sn="<?= $orderByOrderer['order_sn'];?>"
+                                  data-buy-id="<?= $buyInfo['buy_id'];?>" 
+                                  data-order-id="<?= $orderByOrderer['order_id'];?>" 
+                                  data-total-paid="<?= $buyInfo['total_paid'];?>" 
+                                  data-sum="<?=$buyInfo['sum'];?>"
+                                  data-shipping-date="<?= $orderByOrderer['shipping_date'];?>"  
+                                  >
+                                    <?= $orderByOrderer['product'];?><br />
+                                    <span class="shipping-date">
+                                      <?= $orderByOrderer['shipping_date'];?>
+                                    </span>
+                                  </td>
+                                
+                              <?php
+                                }else{                                 
+                              ?>
+                                <td class="text-center shipping 
+                                <?= checkPaid($orderByOrderer['paid'])?>
+                                id-<?= $orderByOrderer['order_id'];?>sn-<?= $orderByOrderer['order_sn'];?>
+                                " 
+                                data-paid="<?= $orderByOrderer['paid'];?>"
+                                data-order-sn="<?= $orderByOrderer['order_sn'];?>"
+                                data-buy-id="<?= $buyInfo['buy_id'];?>" 
+                                data-order-id="<?= $orderByOrderer['order_id'];?>" 
+                                data-total-paid="<?= $buyInfo['total_paid'];?>" 
+                                data-sum="<?=$buyInfo['sum'];?>"
+                                data-shipping-date="<?= $orderByOrderer['shipping_date'];?>"  
+                                >
+                                  <?= $orderByOrderer['product'];?><br />
+                                  <span class="shipping-date">
+                                    <?= $orderByOrderer['shipping_date'];?>
+                                  </span>
+                                </td>
+                              <?php
+                                }
+                              ?>
+                              
+                            <?php
+                            }
+                            ?>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 </div>
