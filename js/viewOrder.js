@@ -4,6 +4,13 @@ $(function () {
   var order_id = $(this).data("order-id");
   var order_sn = $(this).data("order-sn"); */
 
+  // $("tr td.one:nth-child(1)").addClass("col1");
+  
+  $('#detailTable').DataTable(
+    {
+      "lengthMenu": [[-1], ["All"]]
+  } 
+  );
 
   // 將表格有cancelable之class的，包覆一個<a></a>
   $(".cell-content").each(function(){

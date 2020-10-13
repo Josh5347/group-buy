@@ -1,13 +1,22 @@
 table{
-  border-collapse: separate;
-  
+  /* border-collapse: separate; */
+  /* border: 2px solid #e3e6f0 !important;  */
 }
+
 .cancelable{
   border: 2px solid #f44336 !important;
   
 }
 
-.table td, .table th{
-  border-width: 0px 1px 1px 0px;
+/* .table td{
+  border-right-width: 1px;
+  border-bottom-width: 1px;
 }
+.table th{
+  border-width: 1px 1px 1px 0px;
+}
+.col1{
+  border-left: 1px solid #e3e6f0;
+} */
+
 

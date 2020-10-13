@@ -36,11 +36,13 @@ function checkCancelable($orderer){
 <?php require_once 'common/htmlHeader.php'; ?>
 
   <title>團購網 - 訂單明細</title>
+  <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
   <link href="css/managerOrder.css" rel="stylesheet">
   <link href="css/viewOrder.css" rel="stylesheet">
+  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
   <script src="js/viewOrder.js"></script>
-
 
 </head>
 
@@ -261,7 +263,40 @@ function checkCancelable($orderer){
                   </div>
                   <div id="collapse3" class="collapse" data-parent="#accordion">
                     <div class="card-body">
-                      Lorem ipsum..
+                      <div class="table-responsive">
+                        <table id="detailTable" class="table table-bordered table-sm">
+                          <thead>
+                            <tr>
+                              <th class="text-center">取消訂購</th>
+                              <th class="text-center">修改訂購</th>
+                              <th class="text-center">訂購人</th>
+                              <th class="text-center">產品</th>
+                              <th class="text-center">單價</th>
+                              <th class="text-center">說明</th>
+                              <th class="text-center">訂購時間</th>
+                              <th class="text-center">出貨日期</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                          <?php  
+                            foreach($ordersByOrderer as $orderByOrderer  ){
+                          ?>
+                              <tr>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-left"><?=$orderByOrderer['orderer'];?></td>
+                                <td class="text-left"><?=$orderByOrderer['product'];?></td>
+                                <td class="text-right"><?=$orderByOrderer['price'];?></td>
+                                <td class="text-left"><?=$orderByOrderer['explanation'];?></td>
+                                <td class="text-center"><?=$orderByOrderer['order_time'];?></td>
+                                <td class="text-center"><?=$orderByOrderer['shipping_date'];?></td>
+                              </tr>
+                          <?php
+                            }
+                          ?>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 </div>
