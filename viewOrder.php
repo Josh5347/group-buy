@@ -4,9 +4,11 @@
 <?php require_once 'Classes/Functions.php';?>
 <?php require_once 'Classes/BuyInfo.php';?>
 <?php require_once 'Classes/OrderInfo.php';?>
+<?php require_once 'Classes/StoreProduct.php';?>
 <?php use Classes\Functions; ?>
 <?php use Classes\BuyInfo; ?>
 <?php use Classes\OrderInfo; ?>
+<?php use Classes\StoreProduct; ?>
 
 <?php
 
@@ -26,10 +28,17 @@ function checkCancelable($orderer){
   //錯誤訊息
   $errors = [];
   $i = 0;
+
+  if(isset($_REQUEST['update'])){
+    OrderInfo::updateOrderInfo();
+  }
+
   if(isset($_REQUEST['buy_id'])){
     $buyInfo = BuyInfo::getAll($_GET['buy_id']);
     $ordersByAmount = OrderInfo::getOrderInfoSortByAmount($_GET['buy_id']);// 按件統計
-    $ordersByOrderer = OrderInfo::getOrderInfoSortByOrderer(); // 按人統計  }
+    $ordersByOrderer = OrderInfo::getOrderInfoSortByOrderer(); // 按人統計
+    $arrayProducts = StoreProduct::getProductArray($buyInfo['store_no']);// 修改訂單(取得訂單array)
+
   }
 ?>
 
@@ -281,9 +290,34 @@ function checkCancelable($orderer){
                           <?php  
                             foreach($ordersByOrderer as $orderByOrderer  ){
                           ?>
-                              <tr>
+                              <tr class="
+                                <?= checkCancelable($orderByOrderer['orderer']); ?>
+                                id-<?= $orderByOrderer['order_id'];?>sn-<?= $orderByOrderer['order_sn'];?>
+                                " 
+
+                                data-paid="<?= $orderByOrderer['paid'];?>"
+                                data-order-sn="<?= $orderByOrderer['order_sn'];?>"
+                                data-buy-id="<?= $buyInfo['buy_id'];?>" 
+                                data-order-id="<?= $orderByOrderer['order_id'];?>" 
+                                data-total-paid="<?= $buyInfo['total_paid'];?>" 
+                                data-sum="<?=$buyInfo['sum'];?>"
+                                data-price="<?= $orderByOrderer['price'];?>"
+
+                              >
                                 <td class="text-center"></td>
-                                <td class="text-center"></td>
+                                <td class="text-center">
+                                  <button type="button" class="btn btn-link btn-sm btn-cancel invisible"
+                                    data-orderer="<?= $orderByOrderer['orderer'];?>"
+                                    data-buy-id="<?= $orderByOrderer['buy_id'];?>"
+                                    data-order-id="<?= $orderByOrderer['order_id'];?>"
+                                    data-order-sn="<?= $orderByOrderer['order_sn'];?>"
+                                    data-product-no="<?= $orderByOrderer['product_no'];?>"
+                                    data-toggle="modal" data-target="#updateOrderModal">
+                                      修改..
+                                    </button>
+                                  </td>
+
+                                </td>
                                 <td class="text-left"><?=$orderByOrderer['orderer'];?></td>
                                 <td class="text-left"><?=$orderByOrderer['product'];?></td>
                                 <td class="text-right"><?=$orderByOrderer['price'];?></td>
@@ -402,6 +436,10 @@ function checkCancelable($orderer){
               <!-- end accordion -->
             </div>
           </div>
+
+<!-- 改訂Modal -->
+<?php require_once 'common/updateOrderModal.php';?>
+
         </div>
         <!-- /.container-fluid -->
 

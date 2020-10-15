@@ -258,6 +258,25 @@
 
   }
 
+  public static function updateOrderInfo(){
+    global $connOO;
+
+    // 將輸入 以 ";" 分割
+    $arrayInput = preg_split('/[;]+/', $_REQUEST['product_info']);       
+
+    if(!self::updatePriceProduct(
+      $_REQUEST['buy_id'],
+      $_REQUEST['order_id'],
+      $_REQUEST['order_sn'],
+      $arrayInput[0],
+      $arrayInput[1],
+      $arrayInput[2],
+      $_REQUEST['explanation']
+      )){
+      trigger_error(mysqli_error($connOO), E_USER_ERROR);
+    }    
+
+  }
   
 
 }

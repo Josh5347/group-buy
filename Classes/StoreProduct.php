@@ -18,6 +18,21 @@
       return $result;
     }
 
+    public static function getProductArray($store_no){
+      global $connOO;
+  
+      $resultStoreProduct = self::getOneByStoreNo($store_no);
+      if (!$resultStoreProduct){
+        exit("查詢產品清單失敗 :" .$connOO->error);
+      }
+      $rowStoreProduct = $resultStoreProduct->fetch_assoc();
+  
+      // 將產品清單轉換成每一行每一行的陣列
+      $arrayProducts = preg_split('/\r\n/',$rowStoreProduct['product_list']);
+  
+      return $arrayProducts;
+    }
+
   }
 
 ?>

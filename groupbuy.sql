@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1:3306
--- 產生時間： 2020-10-01 05:21:07
+-- 產生時間： 2020-10-15 08:54:43
 -- 伺服器版本： 10.4.10-MariaDB
 -- PHP 版本： 7.4.0
 
@@ -21,7 +21,8 @@ SET time_zone = "+00:00";
 --
 -- 資料庫： `3598353_groupbuy`
 --
-
+CREATE DATABASE IF NOT EXISTS `3598353_groupbuy` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+USE `3598353_groupbuy`;
 
 -- --------------------------------------------------------
 
@@ -86,6 +87,7 @@ CREATE TABLE IF NOT EXISTS `buy_info` (
   `amount` mediumint(9) NOT NULL DEFAULT 0 COMMENT '數量(人)',
   `sum` int(10) NOT NULL DEFAULT 0 COMMENT '總金額',
   `create_date` datetime NOT NULL COMMENT '建立日期',
+  `update_date` datetime DEFAULT NULL COMMENT '修改日期',
   PRIMARY KEY (`buy_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -93,10 +95,10 @@ CREATE TABLE IF NOT EXISTS `buy_info` (
 -- 傾印資料表的資料 `buy_info`
 --
 
-INSERT INTO `buy_info` (`buy_id`, `username`, `store_no`, `enable`, `in_charge_name`, `expired_time`, `announce`, `memo`, `info_1`, `info_2`, `total_paid`, `amount`, `sum`, `create_date`) VALUES
-(1, 'cccccc', 18, 1, '小張', NULL, NULL, NULL, NULL, NULL, 0, 1, 120, '2020-09-08 07:53:17'),
-(2, 'cccccc', 16, 1, '阿豪', NULL, '注意注意注意注意注意', NULL, NULL, NULL, 0, 0, 0, '2020-09-09 07:28:45'),
-(3, 'cccccc', 1, 1, '老張', '18:00:00', NULL, NULL, NULL, NULL, 100, 5, 820, '2020-09-10 03:21:16');
+INSERT INTO `buy_info` (`buy_id`, `username`, `store_no`, `enable`, `in_charge_name`, `expired_time`, `announce`, `memo`, `info_1`, `info_2`, `total_paid`, `amount`, `sum`, `create_date`, `update_date`) VALUES
+(1, 'cccccc', 18, 1, '小張', NULL, NULL, NULL, NULL, NULL, 0, 1, 120, '2020-09-08 07:53:17', NULL),
+(2, 'cccccc', 16, 1, '阿豪', NULL, '注意注意注意注意注意', NULL, NULL, NULL, 0, 0, 0, '2020-09-09 07:28:45', NULL),
+(3, 'cccccc', 1, 1, '老張', '18:00:00', NULL, NULL, NULL, NULL, 100, 5, 560, '2020-09-10 03:21:16', '2020-10-09 16:12:42');
 
 -- --------------------------------------------------------
 
@@ -135,11 +137,9 @@ INSERT INTO `order_info` (`buy_id`, `order_id`, `order_sn`, `store_no`, `orderer
 (1, 1, 2, 18, 'aaa', '2-1', '冰咖啡:中杯', 40, NULL, 0, NULL, '2020-09-14 12:01:33'),
 (1, 1, 3, 18, 'aaa', '1-3', '奶茶:L', 40, NULL, 0, NULL, '2020-09-14 12:01:33'),
 (3, 4, 1, 1, 'ccc', '1', '魯肉飯', 40, '加肉加飯', 0, NULL, '2020-09-17 07:30:36'),
-(3, 4, 2, 1, 'ccc', '1', '魯肉飯', 40, '加肉加飯', 0, NULL, '2020-09-17 07:30:36'),
-(3, 5, 2, 1, 'ddd', '4-1', '陽春麵:普通', 40, '多一點d', 0, NULL, '2020-09-21 09:25:34'),
-(3, 5, 3, 1, 'ddd', '3-1', '牛肉麵:意麵', 80, '多一點c', 0, NULL, '2020-09-21 09:25:34'),
-(3, 5, 4, 1, 'ddd', '3-1', '牛肉麵:意麵', 80, '多一點c', 0, NULL, '2020-09-21 09:25:34'),
-(3, 5, 5, 1, 'ddd', '4-1', '陽春麵:普通', 40, NULL, 0, NULL, '2020-09-21 09:25:34'),
+(3, 4, 2, 1, 'ccc', '2', '叉燒飯', 60, NULL, 0, NULL, '2020-09-17 07:30:36'),
+(3, 1, 3, 1, 'cccccc', '4-1', '陽春麵:普通', 40, NULL, 0, NULL, '2020-10-08 09:56:10'),
+(3, 5, 4, 1, 'cccccc', '3-1', '牛肉麵:意麵', 80, '多一點c', 0, NULL, '2020-09-21 09:25:34'),
 (3, 5, 6, 1, 'ddd', '2', '叉燒飯', 60, '多一點b', 0, NULL, '2020-09-21 09:25:34'),
 (3, 5, 7, 1, 'ddd', '1', '魯肉飯', 40, '多一點a', 0, NULL, '2020-09-21 09:25:34'),
 (3, 5, 8, 1, 'ddd', '1', '魯肉飯', 40, '多一點a', 0, NULL, '2020-09-21 09:25:34');

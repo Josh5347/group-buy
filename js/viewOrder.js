@@ -7,16 +7,31 @@ $(function () {
   // $("tr td.one:nth-child(1)").addClass("col1");
   
   $('#detailTable').DataTable(
-    {
+    { /* 一次顯示所有表格資料 */
       "lengthMenu": [[-1], ["All"]]
   } 
   );
 
-  // 將表格有cancelable之class的，包覆一個<a></a>
+  // 將表格有cancelable之class的div，包覆一個<a></a>
   $(".cell-content").each(function(){
     var strClass = $(this).parent().attr("class");
     if(strClass.indexOf('cancelable') >= 0){
       $(this).wrap('<a class="cancel" href="javascript:void(0)"></a>');
+    }
+  });
+
+  // 將明細列表中有cancelable之class的tr，於該tr的td中顯示"取消"超連結
+  $("#detailTable tbody tr").each(function(){
+    var strClass = $(this).attr("class");
+    if(strClass.indexOf('cancelable') >= 0){
+      var cancel_td = $(this).find("td:first");
+      var update_td = $(this).find("td:nth-child(2) button");
+      cancel_td.html('<a href="javascript:void(0)">取消..</a>');
+      // 於該取消的td增加 .cancel 使取消訂購的功能可以運作
+      cancel_td.addClass("cancel");
+      // 於修改td的button取消.invisible，使修改的功能可以運作
+      update_td.removeClass("invisible");
+
     }
   });
 
@@ -64,6 +79,32 @@ $(function () {
     }
     console.log("order_id:"+order_id + " order_sn:"+order_sn);
   });
+
+  /* 修改訂單中，若選擇改訂項目，傳送資料至改訂Modal中 */
+  $('#updateOrderModal').on('show.bs.modal', function (event) {
+
+    var titleVal = $(event.relatedTarget).data('orderer');
+    // 欲修改項目的buy_id
+    var buy_id =  $(event.relatedTarget).data('buy-id');
+    // 欲修改項目的order_id
+    var order_id = $(event.relatedTarget).data('order-id');
+    // 欲修改項目的order_sn
+    var order_sn =  $(event.relatedTarget).data('order-sn');
+    // 欲修改項目的product_no
+    var product_no =  $(event.relatedTarget).data('product-no');
+
+    //console.log("product_no:"+product_no);
+    $(this).find("#orderer-modal-title").text(titleVal);
+    // input type=hidden之值
+    $(this).find("#buy_id").val(buy_id);
+    $(this).find("#order_id").val(order_id);
+    $(this).find("#order_sn").val(order_sn);
+    // 欲修改項目原本之產品所屬的radio設定為checked
+    $(this).find('#'+product_no).prop("checked", true);
+
+  });
+
+
 
   function deleteOrderInfo( buy_id, order_id, order_sn ){
     var dataInput = {

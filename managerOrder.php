@@ -19,49 +19,6 @@
   }
 
 
-  function showOrder(){
-    global $buyInfo;
-
-    $resultStoreProduct = getStoreProduct($buyInfo['store_no']);
-    $rowStoreProduct = $resultStoreProduct->fetch_assoc();
-
-    // 將產品清單轉換成每一行每一行的陣列
-    $arrayProducts = preg_split('/\r\n/',$rowStoreProduct['product_list']);
-
-    return $arrayProducts;
-  }
-
-  function getStoreProduct($store_no){
-    global $connOO;
-
-    $result = StoreProduct::getOneByStoreNo($store_no);
-    if (!$result){
-      exit("查詢產品清單失敗 :" .$connOO->error);
-    }else{
-      return $result;
-    }
-  }
-
-  function updateOrderInfo(){
-    global $connOO;
-
-    // 將輸入 以 ";" 分割
-    $arrayInput = preg_split('/[;]+/', $_REQUEST['product_info']);       
-
-    if(!OrderInfo::updatePriceProduct(
-      $_REQUEST['buy_id'],
-      $_REQUEST['order_id'],
-      $_REQUEST['order_sn'],
-      $arrayInput[0],
-      $arrayInput[1],
-      $arrayInput[2],
-      $_REQUEST['explanation']
-      )){
-      trigger_error(mysqli_error($connOO), E_USER_ERROR);
-    }    
-
-  }
-
   function deleteOrderInfo(){
     global $connOO;
 
@@ -124,11 +81,12 @@
   $arrayProducts = [];
   $toShipping = false;
   $i = 0;
-  /* showCollapse('default'); */
+
+  showCollapse('default');
 
   if(isset($_REQUEST['update'])){
-    updateOrderInfo();
-    /* showCollapse('update'); */
+    OrderInfo::updateOrderInfo();
+    showCollapse('update');
   
   }
 
@@ -140,7 +98,7 @@
 
   if(isset($_REQUEST['delete'])){
     deleteOrderInfo();
-    /* showCollapse('delete'); */
+    showCollapse('delete');
   }
 
   if(isset($_REQUEST['buy_id'])){
@@ -148,7 +106,7 @@
     $ordersByAmount = OrderInfo::getOrderInfoSortByAmount($_GET['buy_id']);// 按件計算
     $ordersByOrderer = OrderInfo::getOrderInfoSortByOrderer(); // 按人計算
     $ordersExplan = OrderInfo::getOrderInfoSortByAmount($_GET['buy_id']);// 老闆我要訂
-    $arrayProducts = showOrder();// 修改訂單
+    $arrayProducts = StoreProduct::getProductArray($buyInfo['store_no']);// 修改訂單(取得訂單array)
   }
 
 
@@ -560,7 +518,7 @@
                               <th class="text-left">產品</th>
                               <th class="text-right">數量</th>
                               <th class="text-right">單價</th>
-                              <th class="text-center">選一個刪除</th>
+                              <th class="text-center">選一個修改</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -585,7 +543,7 @@
                                     data-order-id="<?= $orderByAmount['order_id'];?>"
                                     data-order-sn="<?= $orderByAmount['order_sn'];?>"
                                     data-product-no="<?= $orderByAmount['product_no'];?>"
-                                    data-toggle="modal" data-target="#editOrderModal">
+                                    data-toggle="modal" data-target="#updateOrderModal">
                                       <?= $orderByAmount['orderer'];?>
                                     </button>
                                   </td>
@@ -603,7 +561,7 @@
                                   data-order-id="<?= $orderByAmount['order_id'];?>"
                                   data-order-sn="<?= $orderByAmount['order_sn'];?>"  
                                   data-product-no="<?= $orderByAmount['product_no'];?>"
-                                  data-toggle="modal" data-target="#editOrderModal">
+                                  data-toggle="modal" data-target="#updateOrderModal">
                                     <?= $orderByAmount['orderer'];?>
                                   </button>
 
@@ -808,111 +766,7 @@
           </div>
           
 <!-- 改訂Modal -->
-          <!-- The Modal -->
-          <div class="modal" id="editOrderModal">
-            <div class="modal-dialog">
-              <div class="modal-content">
-
-                <!-- Modal Header -->
-                <div class="modal-header">
-                  <h4 class="modal-title">改訂 <span id="orderer-modal-title"></span>  買的</h4>
-                  <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-
-                <!-- Modal body -->
-                <div class="modal-body">
-                  <form method="post" action="<?= $_SERVER['PHP_SELF'].'?buy_id='.$_GET['buy_id'];?>" 
-                  class="user" >
-                    <table class="table table-bordered">
-                      <thead>
-                        <tr>
-                          <th>名稱</th>
-                          <th>價錢</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-<?php
-  foreach( $arrayProducts as $rowProduct){
-    /* 產品清單為類別 */
-    if( '{' == substr($rowProduct, 0, 1)){
-      
-?>
-                        <tr>
-                          <td colspan="4" class="font-weight-bold text-primary">
-                            <!-- 去除類別的{}字元 -->
-                            <?= trim($rowProduct, "{}" );?>
-                          </td>
-                        </tr>
-<?php
-    }else{
-      $rowOthers = preg_split("/[,]+/", $rowProduct);
-        $i++; // 產品編號
-    ?>
-                        <tr>
-                          <!-- 陣列中取出array[0]為產品名 -->
-                          <td><?= $product = array_shift($rowOthers);?></td>
-                          <td data-product-no="<?=$i;?>">
-<?php
-      $j = 0;
-      foreach($rowOthers as $other){
-        //比對如 " 中杯 40"，比對成功增加一個radio
-        if(preg_match('/^(\s)*[(\x7f-\xff)a-zA-Z]+(\s)+[0-9]+/',$other)){
-          $j++;
-          $arrayOther = preg_split('/[\s]+/', $other);         
-          $arrayPrice = preg_grep('/[0-9]+/', $arrayOther );
-          $arraySubProduct = preg_grep('/[(\x7f-\xff)a-zA-Z]+/', $arrayOther );
-          // 取得商品細項的價格
-          $price = array_shift($arrayPrice);
-          // 取得商品細項的名稱
-          $subProduct = array_shift($arraySubProduct);
-          // 輸入資料為 "產品名稱;產品編號;價格"
-          printf("<input type='radio' id=%s name='product_info' value=%s />&nbsp%s&nbsp&nbsp&nbsp",
-          $i.'-'.$j, $product.':'.$subProduct.';'.$i.'-'.$j.';'.$price, $other );
-        }else{
-          $other = str_replace(' ', '', $other);
-          // 輸入資料為 "產品名稱;產品編號;價格"
-          printf("<input type='radio' id=%s name='product_info' value=%s />&nbsp%s&nbsp&nbsp&nbsp",
-          $i ,$product.';'.$i.';'.$other ,$other );
-        }
-      }
-
-?>
-
-                          </td>
-                          
-                        </tr>
-<?php
-    }/* end if-else */
-  }/* end foreach */
-?>
-                      </tbody>                    
-                    </table>
-                    <div class="row">
-                      <div class="form-group col-md-4">
-                        <input type="text" name="explanation" class="form-control form-control-user" 
-                        placeholder="額外訂購說明" />
-                      </div>
-                      <div class="col-md-8">
-                          <button type="submit" name="create_order" class="btn btn-danger btn-user mr-3">改訂</button>
-                          <button type="button" class="btn btn-outline-danger btn-user" data-dismiss="modal" >取消</button>
-                      </div>
-                      <input type='hidden' name='buy_id' id='buy_id' />
-                      <input type='hidden' name='order_id' id='order_id' />
-                      <input type='hidden' name='order_sn' id='order_sn' />
-                      <input type='hidden' name='update' />
-                    </div>
-                  </form>
-                </div>
-
-                <!-- Modal footer -->
-                <div class="modal-footer">
-                 
-                </div>
-
-              </div>
-            </div>
-          </div>
+<?php require_once 'common/updateOrderModal.php';?>
 
 <!-- 刪除modal -->
 

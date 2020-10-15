@@ -93,7 +93,7 @@ $(function () {
   });
 
   /* 修改訂單中，若選擇改訂項目，傳送資料至改訂Modal中 */
-  $('#editOrderModal').on('show.bs.modal', function (event) {
+  $('#updateOrderModal').on('show.bs.modal', function (event) {
 
     var titleVal = $(event.relatedTarget).data('orderer');
     // 欲修改項目的buy_id
