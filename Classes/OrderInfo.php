@@ -207,13 +207,13 @@
       return $arrayOrders;
     }
 
-    public static function getOrderInfoSortByOrderer(){
+    public static function getOrderInfoSortByOrderer($buy_id){
       
       global $connOO;
       $prevOrderer = '';
       $arrayOrders = [];
      
-      $resultOrderByOrderer = self::getAllSortByOrderer($_GET['buy_id']);
+      $resultOrderByOrderer = self::getAllSortByOrderer($buy_id);
       if (!$resultOrderByOrderer){
         exit("查詢訂單資訊失敗 :" .$connOO->error);
       }

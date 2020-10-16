@@ -114,13 +114,14 @@
     global $connOO;
 
     $query = sprintf("INSERT INTO order_info 
-    ( buy_id, order_id, order_sn, store_no, orderer, product_no, product, price, explanation, order_time)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
+    ( buy_id, order_id, order_sn, store_no, orderer, group_belong, product_no, product, price, explanation, order_time)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
     GetSQLValue($_GET['buy_id'], "int"), 
     GetSQLValue( ++$order_id, "int"), 
     GetSQLValue($order_sn, "text"), 
     GetSQLValue($store_no, "text"), 
     GetSQLValue($_REQUEST['orderer'], "text"), 
+    GetSQLValue($_SESSION['username'] , "text"),
     GetSQLValue($product_no, "text"), 
     GetSQLValue($product, "text"), 
     GetSQLValue($price, "int"), 

@@ -65,8 +65,8 @@ $(function () {
     var paidFlg = (strClass.indexOf('paid-color') != -1)? true: false;
     
     if(confirm("確定要取消此筆訂單")){
-      // deleteOrderInfo( buy_id, order_id, order_sn );
-      // updateBuyInfo( buy_id, minus_price, paidFlg );
+      deleteOrderInfo( buy_id, order_id, order_sn );
+      updateBuyInfo( buy_id, minus_price, paidFlg );
       // 按件統計之產品數量加總
       amountRowSum_text.text(--amountRowSum);
       // 按人統計之訂購數量加總

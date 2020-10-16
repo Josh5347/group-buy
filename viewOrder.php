@@ -16,9 +16,9 @@ function checkPaid($paid){
   return ($paid)? "paid-color": "unpaid-color";
 }
 
-function checkCancelable($orderer){
+function checkCancelable($groupBelong){
   // 訂購者本人可以取消訂購，回傳 ".cancelable"
-  return ($orderer == $_SESSION['username'])? "cancelable": "";
+  return ($groupBelong == $_SESSION['username'])? "cancelable": "";
 }
 
   /****************************************************/
@@ -36,7 +36,7 @@ function checkCancelable($orderer){
   if(isset($_REQUEST['buy_id'])){
     $buyInfo = BuyInfo::getAll($_GET['buy_id']);
     $ordersByAmount = OrderInfo::getOrderInfoSortByAmount($_GET['buy_id']);// 按件統計
-    $ordersByOrderer = OrderInfo::getOrderInfoSortByOrderer(); // 按人統計
+    $ordersByOrderer = OrderInfo::getOrderInfoSortByOrderer($_GET['buy_id']); // 按人統計
     $arrayProducts = StoreProduct::getProductArray($buyInfo['store_no']);// 修改訂單(取得訂單array)
 
   }
@@ -125,7 +125,7 @@ function checkCancelable($orderer){
                                   <td class="text-right"><?= $orderByAmount['price'];?></td>
                                   <td class="text-center
                                   id-<?= $orderByAmount['order_id'];?>sn-<?= $orderByAmount['order_sn'];?>
-                                  <?= checkCancelable($orderByAmount['orderer']); ?>
+                                  <?= checkCancelable($orderByAmount['group_belong']); ?>
                                   <?= checkPaid($orderByAmount['paid']); ?>
                                   " 
                                   data-paid="<?= $orderByAmount['paid'];?>"
@@ -146,7 +146,7 @@ function checkCancelable($orderer){
                               ?>
                                 <td class="text-center 
                                 id-<?= $orderByAmount['order_id'];?>sn-<?= $orderByAmount['order_sn'];?>
-                                <?= checkCancelable($orderByAmount['orderer']); ?>
+                                <?= checkCancelable($orderByAmount['group_belong']); ?>
                                 <?= checkPaid($orderByAmount['paid']); ?>
                                 "
                                 data-paid="<?= $orderByAmount['paid'];?>"
@@ -210,7 +210,7 @@ function checkCancelable($orderer){
                                   <td class="text-right price-row-sum-byOrder"><?= $orderByOrderer['price_row_sum'];?></td>
                                   <td class="text-center orderer
                                   <?= checkPaid($orderByOrderer['paid'])?>
-                                  <?= checkCancelable($orderByOrderer['orderer']); ?>
+                                  <?= checkCancelable($orderByOrderer['group_belong']); ?>
                                   id-<?= $orderByOrderer['order_id'];?>sn-<?= $orderByOrderer['order_sn'];?>
                                   " 
                                   data-paid="<?= $orderByOrderer['paid'];?>"
@@ -231,7 +231,7 @@ function checkCancelable($orderer){
                               ?>
                                 <td class="text-center orderer
                                 <?= checkPaid($orderByOrderer['paid'])?>
-                                <?= checkCancelable($orderByOrderer['orderer']); ?>
+                                <?= checkCancelable($orderByOrderer['group_belong']); ?>
                                 id-<?= $orderByOrderer['order_id'];?>sn-<?= $orderByOrderer['order_sn'];?>
                                 "
                                 data-paid="<?= $orderByOrderer['paid'];?>"
@@ -291,7 +291,7 @@ function checkCancelable($orderer){
                             foreach($ordersByOrderer as $orderByOrderer  ){
                           ?>
                               <tr class="
-                                <?= checkCancelable($orderByOrderer['orderer']); ?>
+                                <?= checkCancelable($orderByOrderer['group_belong']); ?>
                                 id-<?= $orderByOrderer['order_id'];?>sn-<?= $orderByOrderer['order_sn'];?>
                                 " 
 

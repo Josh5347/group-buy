@@ -104,7 +104,7 @@
   if(isset($_REQUEST['buy_id'])){
     $buyInfo = BuyInfo::getAll($_GET['buy_id']);
     $ordersByAmount = OrderInfo::getOrderInfoSortByAmount($_GET['buy_id']);// 按件計算
-    $ordersByOrderer = OrderInfo::getOrderInfoSortByOrderer(); // 按人計算
+    $ordersByOrderer = OrderInfo::getOrderInfoSortByOrderer($_GET['buy_id']); // 按人計算
     $ordersExplan = OrderInfo::getOrderInfoSortByAmount($_GET['buy_id']);// 老闆我要訂
     $arrayProducts = StoreProduct::getProductArray($buyInfo['store_no']);// 修改訂單(取得訂單array)
   }
@@ -597,7 +597,7 @@
                               <th class="text-left">產品</th>
                               <th class="text-right">數量</th>
                               <th class="text-right">單價</th>
-                              <th class="text-center">選一個修改</th>
+                              <th class="text-center">選一個刪除</th>
                             </tr>
                           </thead>
                           <tbody>
