@@ -1,5 +1,6 @@
 $(function () {
 
+  var total_amount; 
   /* var buy_id = $(this).data("buy-id");
   var order_id = $(this).data("order-id");
   var order_sn = $(this).data("order-sn"); */
@@ -43,6 +44,12 @@ $(function () {
     var order_sn = $(this).parent().data("order-sn");
     var classIdSn = ".id-" + order_id + "sn-" + order_sn;
     var minus_price = $(this).parent().data("price");
+    // 總份數
+    var share = parseInt($('#total-share').text());
+    // 訂購人數
+    // var total_amount = parseInt($('#totoal-amount').text());
+    // 總金額
+    var sum = parseInt($('#sum').text());
     // 按件統計之資料
     var amountRowSum_text = $(classIdSn).parent().find('.amount-row-sum');
     var amountRowSum = parseInt(amountRowSum_text.text());
@@ -66,7 +73,7 @@ $(function () {
     
     if(confirm("確定要取消此筆訂單")){
       deleteOrderInfo( buy_id, order_id, order_sn );
-      updateBuyInfo( buy_id, minus_price, paidFlg );
+      updateBuyInfo( buy_id, minus_price, paidFlg ,callback1 );
       // 按件統計之產品數量加總
       amountRowSum_text.text(--amountRowSum);
       // 按人統計之訂購數量加總
@@ -75,6 +82,14 @@ $(function () {
       priceRowSumByOrder_text.text(priceRowSumByOrder-minus_price);
       // 出貨狀態之每訂購人訂購總數
       amountRowSumShipping_text.text(--amountRowSumShipping);
+      // 總份數
+     $('#total-share').text(--share);
+      // 訂購人數
+      $('#totoal-amount').text(total_amount);
+      // 總金額
+      $('#sum').text(sum-minus_price);
+      
+
       $(classIdSn).remove();
     }
     console.log("order_id:"+order_id + " order_sn:"+order_sn);
@@ -128,7 +143,7 @@ $(function () {
     });// end of ajax
   }
 
-  function updateBuyInfo( buy_id, minus_price, paid_flg ){
+  function updateBuyInfo( buy_id, minus_price, paid_flg, callback1 ){
     var dataInput = {
       buyId : buy_id,
       minusPrice : minus_price,
@@ -140,9 +155,10 @@ $(function () {
         data: dataInput,
         type: 'POST',
         dataType: 'JSON',
+        async: false,
         success: function(data) {
             console.log(data);
-          
+            callback1(data.amount);
             
         }// end of success
 
@@ -150,4 +166,7 @@ $(function () {
     });// end of ajax
   }
 
+  function callback1(arg){
+    total_amount = arg;
+}
 });

@@ -3,10 +3,12 @@
 <?php require_once 'Connections/function.php'; ?>
 <?php require_once 'Classes/Functions.php';?>
 <?php require_once 'Classes/BuyInfo.php';?>
+<?php require_once 'Classes/OrderInfo.php';?>
 <?php require_once 'Classes/StoreProduct.php';?>
 
 <?php use Classes\Functions; ?>
 <?php use Classes\BuyInfo; ?>
+<?php use Classes\OrderInfo; ?>
 <?php use Classes\StoreProduct; ?>
 
 <?php
@@ -67,6 +69,8 @@
       $resultBuyInfo = getBuyInfo();
       $rowBuyInfo = $resultBuyInfo->fetch_assoc();
 
+      $lastOrderId = OrderInfo::getLastOrderId($_GET['buy_id']);
+
       foreach($_REQUEST['amount'] as $amount){
         $product_no = array_pop($_REQUEST['product_no']);
         $product = array_pop($_REQUEST['product']);
@@ -79,7 +83,7 @@
           //序號
           $order_sn++;
 
-          if(!insert_order_info($rowBuyInfo['amount'], $order_sn, $rowBuyInfo['store_no'], $product_no, $product, $price, $explanation)){
+          if(!insert_order_info(++$lastOrderId, $order_sn, $rowBuyInfo['store_no'], $product_no, $product, $price, $explanation)){
             trigger_error(mysqli_error($connOO), E_USER_ERROR);
           }
           

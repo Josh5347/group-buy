@@ -83,7 +83,7 @@ function checkCancelable($groupBelong){
 
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h5 mb-0 text-gray-800">
-              總共 <?= count($ordersByAmount);?> 份，<?=$buyInfo['amount'];?> 人購買，共 <?=$buyInfo['sum'];?> 元。
+              總共 <span id="total-share"><?= count($ordersByAmount);?></span> 份，<span id="totoal-amount"><?=$buyInfo['amount'];?></span> 人購買，共 <span id="sum"><?=$buyInfo['sum'];?></span> 元。
             </h1>
           </div>
 

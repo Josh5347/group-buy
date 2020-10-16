@@ -29,6 +29,19 @@
       $result = mysqli_query($connOO, $query);
       return $result;
     }
+
+    public static function getAllSortByOrderidOrderSn($buyId){
+    
+      global $connOO;
+
+      $query = sprintf("SELECT * FROM order_info WHERE `buy_id` = %d ORDER BY `order_id` ASC, `order_sn` ASC", 
+      GetSQLValue((int)$buyId, "int"));
+
+      $result = mysqli_query($connOO, $query);
+      return $result;
+    }
+
+
     public static function updatePaidByOrderSn($buyId, $orderId, $orderSn, $paid){
     
       global $connOO;
@@ -45,7 +58,7 @@
       $result = mysqli_query($connOO, $query);
       return $result;
     }
-    
+
     public static function updatePriceProduct( $buyId, $orderId, $orderSn, $product, $productNo, $price, $explanation){
     
       global $connOO;
@@ -278,6 +291,23 @@
 
   }
   
+  public static function getLastOrderId($buyId){
+    global $connOO;
+
+    $result = self::getAllSortByOrderidOrderSn($buyId);
+    
+    if($result){
+      $rows = $result->num_rows;
+      $result->data_seek($rows-1);
+      $last = $result->fetch_assoc();
+      return $last['order_id'];
+
+    }else{
+      return 0;
+    }
+
+  }
+
 
 }
 

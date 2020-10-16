@@ -11,7 +11,7 @@
 
     function sqlQuery(){
 
-      global $connOO, $result;
+      global $connOO, $result, $amountOrderer;
 
       $result = BuyInfo::getOneByBuyId($_REQUEST['buyId']);
       if (!$result){
@@ -35,7 +35,7 @@
         $sum
         )){
         
-        return true;
+        return $amountOrderer;
       }else{
         trigger_error(mysqli_error($connOO), E_USER_ERROR);
       }
@@ -54,12 +54,13 @@
 
 
     $result = '';
-
+    $amountOrderer = 0;
     $returnOBJ = new StdClass();
     
 
     if(sqlQuery()){
       $returnOBJ->status = true;
+      $returnOBJ->amount = $amountOrderer;
       echo json_encode($returnOBJ);
     }else{
       $returnOBJ->status = false;
